@@ -3,5 +3,6 @@ Unity packages:
 - Oculus XR Plugin
 - XR Interaction Toolkit
 - XR Plug-in Management
+- ProBuilder
 
 Code conventions:
