@@ -12,8 +12,17 @@ public class MenuBtn: MonoBehaviour
     {
         img = panel.GetComponent<Image>();
     }
-    public  void ColorChangeOnClick()
+    public  void OnRedClick()
     {
-        img.color = img.color == Color.red ? Color.blue : Color.red;
+        img.color = Color.red;
+    }
+    public void OnGreenClick()
+    {
+        img.color= Color.green;
+
+    }
+    public void OnBlueClick()
+    {
+        img.color=Color.blue;
     }
 }

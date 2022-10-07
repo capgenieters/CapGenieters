@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.XR;
 
 public class raycast : MonoBehaviour
 {
@@ -13,15 +14,18 @@ public class raycast : MonoBehaviour
     //Settings for the LineRenderer are stored as a Vector3 array of points. Set up a V3 array to //initialize in Start.
     Vector3[] points;
 
-    public Vector2 turn;
+    //public Vector2 turn;
     //Start is called before the first frame update
     public LayerMask layermask;
 
-    public float speed = 2f;
-    public Button btn;
+    //public float speed = 2f;
+    private Button btn;
+    public InputActionProperty device;
+    private float distance = 20f;
 
     void Start() {
 
+        
         Cursor.lockState = CursorLockMode.Locked;
 
         //get the LineRenderer attached to the gameobject.
@@ -31,7 +35,7 @@ public class raycast : MonoBehaviour
         //set the start point of the linerenderer to the position of the gameObject.
         points[0] = Vector3.zero;
         //set the end point 20 units away from the GO on the Z axis (pointing forward)
-        points[1] = transform.position + new Vector3(0, 0, 20); 
+        points[1] = transform.position + new Vector3(0, 0, distance); 
         //finally set the positions array on the LineRenderer to our new values
         rend.SetPositions(points);
         rend.enabled = true;
@@ -40,12 +44,9 @@ public class raycast : MonoBehaviour
 
     private void Update()
     {
-        // delete those three lines to remove mouse movement
-        turn.x += Input.GetAxis("Mouse X");
-        turn.y += Input.GetAxis("Mouse Y");
-        transform.localRotation = Quaternion.Euler(-turn.y * speed, turn.x * speed, 0);
-        if(AlignLineRenderer(rend) && Input.GetButtonDown("Fire1"))
+        if (AlignLineRenderer(rend) && device.action.triggered)
         {
+           if(btn)
             btn.onClick.Invoke();
             Debug.Log(btn.name);
         }
@@ -69,11 +70,12 @@ public class raycast : MonoBehaviour
             rend.endColor = Color.red;
             btn = hit.collider.gameObject.GetComponent<Button>();
             hitBtn = true;
+
         }
         else
         {
 
-            points[1] = transform.forward + new Vector3(0,0,20);
+            points[1] = transform.forward + new Vector3(0,0, distance);
             rend.startColor = Color.green;
             rend.endColor = Color.green;
             hitBtn = false;
