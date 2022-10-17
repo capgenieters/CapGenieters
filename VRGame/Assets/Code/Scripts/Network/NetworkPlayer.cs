@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
+using Photon.Pun;
 
 public class NetworkPlayer : MonoBehaviour
 {
@@ -9,11 +10,25 @@ public class NetworkPlayer : MonoBehaviour
     public Transform leftHand;
     public Transform rightHand;
 
+    public PhotonView photonView;
+
+    void Start()
+    {
+        photonView = GetComponent<PhotonView>();
+    }
+
     void Update()
     {
-        MapPosition(head, XRNode.Head);
-        MapPosition(leftHand, XRNode.LeftHand);
-        MapPosition(rightHand, XRNode.RightHand);
+        if(photonView.IsMine)
+        {
+            head.gameObject.SetActive(false);
+            leftHand.gameObject.SetActive(false);
+            rightHand.gameObject.SetActive(false);
+
+            MapPosition(head, XRNode.Head);
+            MapPosition(leftHand, XRNode.LeftHand);
+            MapPosition(rightHand, XRNode.RightHand);
+        }
     }
 
     void MapPosition(Transform target, XRNode node)
