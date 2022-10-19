@@ -12,8 +12,8 @@ public class NetworkPlayer : MonoBehaviour
     public Transform leftHand;
     public Transform rightHand;
 
-    public Animator leftHandAnim;
-    public Animator rightHandAnim;
+    //public Animator leftHandAnim;
+    //public Animator rightHandAnim;
 
     public PhotonView photonView;
 
@@ -30,13 +30,13 @@ public class NetworkPlayer : MonoBehaviour
         leftHandRig = rig.transform.Find("Camera Offset/Left Hand");
         rightHandRig = rig.transform.Find("Camera Offset/Right Hand");
 
-        if(photonView.IsMine)
+/*        if(photonView.IsMine)
         {
             foreach (var item in GetComponentsInChildren<Renderer>())
             {
                 item.enabled = false;
             }
-        }
+        }*/
     }
 
     void Update()
@@ -47,12 +47,12 @@ public class NetworkPlayer : MonoBehaviour
             MapPosition(leftHand, leftHandRig);
             MapPosition(rightHand, rightHandRig);
 
-            UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), leftHandAnim);
-            UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.RightHand), rightHandAnim);
+            //UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), leftHandAnim);
+            //UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.RightHand), rightHandAnim);
         }
     }
 
-    void UpdateHandAnimation(InputDevice targetDevice, Animator handAnimator)
+/*    void UpdateHandAnimation(InputDevice targetDevice, Animator handAnimator)
     {
         if(targetDevice.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
         {
@@ -71,7 +71,7 @@ public class NetworkPlayer : MonoBehaviour
         {
             handAnimator.SetFloat("Grip", 0);
         }
-    }
+    }*/
 
     void MapPosition(Transform target, Transform rigTransform)
     { 
