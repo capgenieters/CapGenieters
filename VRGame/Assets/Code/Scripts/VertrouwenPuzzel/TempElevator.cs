@@ -65,8 +65,8 @@ public class TempElevator : MonoBehaviour
         _elevatorLight.enabled = isActive;
     }
 
-    private void OnDrawGizmos()
+    /*private void OnDrawGizmos()
     {
         Gizmos.DrawCube(_triggerCollider.transform.position, _triggerCollider.size * 2f);
-    }
+    }*/
 }
