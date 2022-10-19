@@ -696,7 +696,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4521878582592728634}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
   m_Name: 
@@ -1855,7 +1855,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7055958340916056209}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
   m_Name: 
@@ -2818,8 +2818,6 @@ MonoBehaviour:
   head: {fileID: 7014058969083182887}
   leftHand: {fileID: 4569189122262683702}
   rightHand: {fileID: 6984304265617036941}
-  leftHandAnim: {fileID: 4521878582585433484}
-  rightHandAnim: {fileID: 7055958340925448999}
   photonView: {fileID: 0}
 --- !u!1 &8825574230638742813
 GameObject:
