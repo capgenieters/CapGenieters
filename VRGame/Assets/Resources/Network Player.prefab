@@ -644,6 +644,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4521878582592893530}
   - component: {fileID: 4521878582585433484}
+  - component: {fileID: 2761080302344639138}
   m_Layer: 0
   m_Name: Left Hand Model
   m_TagString: Untagged
@@ -688,6 +689,30 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &2761080302344639138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4521878582592728634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowLayerWeightsInspector: 1
+  ShowParameterInspector: 1
+  m_SynchronizeParameters:
+  - Type: 1
+    SynchronizeType: 2
+    Name: Grip
+  - Type: 1
+    SynchronizeType: 2
+    Name: Trigger
+  m_SynchronizeLayers:
+  - SynchronizeType: 0
+    LayerIndex: 0
 --- !u!1 &4521878582592728636
 GameObject:
   m_ObjectHideFlags: 0
@@ -1778,6 +1803,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7055958340916350193}
   - component: {fileID: 7055958340925448999}
+  - component: {fileID: 2557864338515348035}
   m_Layer: 0
   m_Name: Right Hand Model
   m_TagString: Untagged
@@ -1822,6 +1848,30 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &2557864338515348035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7055958340916056209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowLayerWeightsInspector: 1
+  ShowParameterInspector: 1
+  m_SynchronizeParameters:
+  - Type: 1
+    SynchronizeType: 2
+    Name: Grip
+  - Type: 1
+    SynchronizeType: 2
+    Name: Trigger
+  m_SynchronizeLayers:
+  - SynchronizeType: 0
+    LayerIndex: 0
 --- !u!1 &7055958340916056211
 GameObject:
   m_ObjectHideFlags: 0
@@ -2748,6 +2798,8 @@ MonoBehaviour:
   - {fileID: 5418125984570119777}
   - {fileID: 8697165913834618106}
   - {fileID: 7902185401858301579}
+  - {fileID: 2557864338515348035}
+  - {fileID: 2761080302344639138}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -2766,6 +2818,8 @@ MonoBehaviour:
   head: {fileID: 7014058969083182887}
   leftHand: {fileID: 4569189122262683702}
   rightHand: {fileID: 6984304265617036941}
+  leftHandAnim: {fileID: 4521878582585433484}
+  rightHandAnim: {fileID: 7055958340925448999}
   photonView: {fileID: 0}
 --- !u!1 &8825574230638742813
 GameObject:

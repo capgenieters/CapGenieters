@@ -11,6 +11,10 @@ public class NetworkPlayer : MonoBehaviour
     public Transform head;
     public Transform leftHand;
     public Transform rightHand;
+
+    public Animator leftHandAnim;
+    public Animator rightHandAnim;
+
     public PhotonView photonView;
 
     private Transform headRig;
@@ -25,19 +29,47 @@ public class NetworkPlayer : MonoBehaviour
         headRig = rig.transform.Find("Camera Offset/Main Camera");
         leftHandRig = rig.transform.Find("Camera Offset/Left Hand");
         rightHandRig = rig.transform.Find("Camera Offset/Right Hand");
+
+        if(photonView.IsMine)
+        {
+            foreach (var item in GetComponentsInChildren<Renderer>())
+            {
+                item.enabled = false;
+            }
+        }
     }
 
     void Update()
     {
         if(photonView.IsMine)
         {
-            head.gameObject.SetActive(false);
-            leftHand.gameObject.SetActive(false);
-            rightHand.gameObject.SetActive(false);
-
             MapPosition(head, headRig);
             MapPosition(leftHand, leftHandRig);
             MapPosition(rightHand, rightHandRig);
+
+            UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), leftHandAnim);
+            UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.RightHand), rightHandAnim);
+        }
+    }
+
+    void UpdateHandAnimation(InputDevice targetDevice, Animator handAnimator)
+    {
+        if(targetDevice.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
+        {
+            handAnimator.SetFloat("Trigger", triggerValue);
+        }
+        else
+        {
+            handAnimator.SetFloat("Trigger", 0);
+        }
+
+        if(targetDevice.TryGetFeatureValue(CommonUsages.grip, out float gripValue))
+        {
+            handAnimator.SetFloat("Grip", gripValue); 
+        }
+        else
+        {
+            handAnimator.SetFloat("Grip", 0);
         }
     }
 
@@ -45,6 +77,5 @@ public class NetworkPlayer : MonoBehaviour
     { 
         target.position = rigTransform.position;
         target.rotation = rigTransform.rotation;
-        //target.SetPositionAndRotation(rigTransform.position, rigTransform.rotation);
     }
 }
