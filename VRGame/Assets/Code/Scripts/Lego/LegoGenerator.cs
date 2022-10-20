@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
+using UnityEngine.UI;
 
 public class LegoGenerator : MonoBehaviour
 {
     // VR Tools
     [SerializeField] Transform leftHand;
     [SerializeField] Transform rightHand;
+    [SerializeField] Text debugItemDisplay;
 
     [SerializeField] Vector2Int Dimentions = new Vector2Int(25, 25);
     [SerializeField] GameObject Stud;
@@ -20,11 +21,13 @@ public class LegoGenerator : MonoBehaviour
     [SerializeField] int seed = 1784;
     [SerializeField] float worldScale = 0.5f;
 
-    private Brick gridBrick;
     private List<Brick> cloudPool = new List<Brick>();
+    private List<GameObject> breakableObjects = new List<GameObject>();
+    private List<Brick> droppedBricksPool = new List<Brick>();
     private List<Animal> animals = new List<Animal>();
     private LegoTools legoTools;
     private LegoVRTools vrTools;
+    private LegoInventory inventory;
 
     private Material Grey, BrightGreen, Sand, White, Brown;
 
@@ -32,11 +35,10 @@ public class LegoGenerator : MonoBehaviour
     {
         legoTools = new LegoTools(Stud, worldScale);
         vrTools = new LegoVRTools();
+        inventory = new LegoInventory(legoTools);
 
         // Create the Materials and add the colors and instancing
         CreateMaterials();
-
-        gridBrick = new Brick(legoTools, 1, 1, 1, White, 0.6f, false, false);
 
         // Generate a random seed and supply it for pseudo-randomness
         seed = Random.Range(0, (int)Mathf.Pow(9, 8));
@@ -56,11 +58,23 @@ public class LegoGenerator : MonoBehaviour
             z = legoTools.RandomRange(10, Dimentions.y - 10);
 
             GameObject pigObj = legoTools.Clone(Pig, new Vector3(x, 5.0f, z), Quaternion.identity);
-            GameObject pidgeonObj = legoTools.Clone(Pidgeon, new Vector3(x, 7.5f, z), Quaternion.identity);
             Animal pig = new Animal(pigObj, x, z);
-            Animal pidgeon = new Animal(pidgeonObj, x, z);
             animals.Add(pig);
-            animals.Add(pidgeon);
+        }
+
+        // Add some starter bricks
+        for (int i = 0; i < 5; i++)
+            inventory.AddItem(1, 1, 0.6f);
+
+        for (int i = 0; i < 10; i++)
+            inventory.AddItem(1, 1, 0.2f);
+
+        // Spawn some bricks for the player to suck up
+        for (int i = 0; i < 30; i++)
+        {
+            Brick droppedBrick = new Brick(legoTools, 1, 1, BrightGreen, 0.6f, false, true);
+            droppedBrick.SetPosition(Dimentions.x / 2, 1.25f, Dimentions.y / 2);
+            droppedBricksPool.Add(droppedBrick);
         }
     }
 
@@ -85,39 +99,124 @@ public class LegoGenerator : MonoBehaviour
 
         foreach(Animal a in animals)
             a.FixedUpdate();
+
+        // Update debug item ui
+        if (debugItemDisplay)
+        {
+            string finalText = "";
+
+            foreach (LegoItem item in inventory.items)
+            {
+                finalText += "[x" + item.dimentions[0] + ", z" + item.dimentions[1] + ", h" + item.dimentions[2] + "]";
+                finalText += ": " + item.amount + "\n";
+            }
+
+            debugItemDisplay.text = finalText;
+        }
+
+        // Check for breaking objects
+        // foreach(GameObject breakable in breakableObjects)
+        // {
+        //     if (!breakable.activeInHierarchy)
+        //         continue;
+
+        //     float distance = Vector3.Distance(rightHand.transform.position, breakable.transform.position);
+
+        //     if (distance < 2.0f)
+        //     {
+        //         BreakObject(breakable);
+        //     }
+        // }
     }
 
     private void Update()
     {
-        bool[] gripStates = vrTools.GetGripStates();
+        // Update controllers and get wether the grip buttons are pressed
+        vrTools.UpdateControllers();
+        bool[] gripStates = vrTools.GetButtonStates(UnityEngine.XR.CommonUsages.gripButton, false);
 
         if (!gripStates[0] && !gripStates[1])
             return;
 
-        // Get controller position and round it to a stud position
-        Vector3 controllerPos = gripStates[1] ? rightHand.position : leftHand.position;
-        Vector3 legoPos = legoTools.FloorToPlate(controllerPos / worldScale);
-        legoPos.x += 0.25f;
-        legoPos.z += 0.25f;
-
-        // Check if a stud exists at this position
-        for (float i = -2; i <= 1; i++)
+        if (gripStates[1])
         {
-            legoPos.y += (i / 5);
+            // Get controller position and round it to a stud position
+            Vector3 controllerPos = gripStates[1] ? rightHand.position : leftHand.position;
+            Vector3 legoPos = legoTools.RoundToPlate(controllerPos / worldScale);
+            legoPos.x += 0.25f;
+            legoPos.z += 0.25f;
 
-            if (legoTools.studs.Has(legoPos))
+            // Check if a stud exists at this position
+            for (float i = -2; i <= 1; i++)
             {
-                Brick newBrick = new Brick(legoTools, 1, 1, 1, BrightGreen, gripStates[1] ? 0.6f : 0.2f);
-                newBrick.BuildBrick(legoTools.studs.Get(legoPos));
-                legoTools.studs.Remove(legoPos);
-                break;
+                legoPos.y += (i / 5);
+
+                if (legoTools.studs.Has(legoPos))
+                {
+                    inventory.PlaceItem(legoPos);
+                    return;
+                }
             }
         }
+
+        // Suck up dropped lego bricks
+        if (gripStates[0])
+        {
+            foreach (Brick droppedBrick in droppedBricksPool)
+            {
+                // Make sure brick is active in the world
+                if (!droppedBrick.cube.activeInHierarchy)
+                    continue;
+
+                // Check if the brick is close enough to be sucked up
+                Transform tCube = droppedBrick.cube.transform;
+                float distance = Vector3.Distance(leftHand.position, tCube.position);
+                if (distance < 2.0f)
+                {
+                    Vector3 lerp = Vector3.Lerp(tCube.position, leftHand.position, 10f * Time.deltaTime);
+                    droppedBrick.SetAbsolutePosition(lerp);
+
+                    // Check if the brick is so close it can be added to the player's inventory
+                    if (distance < 0.35f)
+                    {
+                        inventory.AddItem(droppedBrick);
+                        droppedBrick.SetActive(false);
+                    }
+                }
+            }
+        }
+
+        // Check wether to switch to the next item
+        bool[] buttonStates = vrTools.GetButtonStates(UnityEngine.XR.CommonUsages.primaryButton);
+
+        if (buttonStates[0])
+            inventory.SetSelectedIndex(inventory.selectedIndex - 1);
+        else if (buttonStates[1])
+            inventory.SetSelectedIndex(inventory.selectedIndex + 1);
     }
 
-    private void BreakObject()
+    private void BreakObject(GameObject obj)
     {
+        Vector3 scale = obj.transform.localScale;
+        Vector3 dropPoint = obj.transform.position;
         
+        float dropAmount = scale.x / worldScale + scale.y / worldScale + scale.z / worldScale;
+        int plateAmount = (int)Mathf.Ceil(dropAmount * 0.3f) * 3;
+        int brickAmount = (int)Mathf.Ceil(dropAmount * 0.7f) * 3;
+
+        for (int i = 0; i < plateAmount; i++)
+        {
+            Brick b = new Brick(legoTools, 1, 1, BrightGreen, 0.2f, false, true);
+            b.SetPosition(dropPoint * worldScale);
+        }
+
+        for (int i = 0; i < brickAmount; i++)
+        {
+            Brick b = new Brick(legoTools, 1, 1, BrightGreen, 0.6f, false, true);
+            b.SetPosition(dropPoint * worldScale);
+        }
+
+        obj.SetActive(false);
     }
 
     Brick cloudBlock;
@@ -151,7 +250,7 @@ public class LegoGenerator : MonoBehaviour
                         else
                         {
                             // Create a new cloud block, set the position and move it into the cloud pool
-                            cloudBlock = new Brick(legoTools, 2, 3, 2, White);
+                            cloudBlock = new Brick(legoTools, 2, 2, White, 1.8f);
                             cloudBlock.SetPosition(legoTools.RoundToPlate(x, yf, z));
                             cloudPool.Add(cloudBlock);
                         }
@@ -189,7 +288,7 @@ public class LegoGenerator : MonoBehaviour
                 // Round down the Y to plates
                 y = legoTools.Round(y, 0.2f);
 
-                Brick newBrick = new Brick(legoTools, 2, 2, 2, y > 1.2f ? BrightGreen : Sand);
+                Brick newBrick = new Brick(legoTools, 2, 2, y > 1.2f ? BrightGreen : Sand, 1.2f);
                 newBrick.SetPosition(x, y, z);
                 newBrick.SetParent(this.transform);
 
@@ -270,6 +369,7 @@ public class LegoGenerator : MonoBehaviour
                 rend.material = BrightGreen;
 
             newCactus.transform.parent = this.transform;
+            breakableObjects.Add(newCactus);
         }
     }
 
@@ -287,6 +387,7 @@ public class LegoGenerator : MonoBehaviour
                 rend.material = rend.name == "Leaves" ? BrightGreen : Brown;
 
             newTree.transform.parent = this.transform;
+            breakableObjects.Add(newTree);
         }
     }
 }
