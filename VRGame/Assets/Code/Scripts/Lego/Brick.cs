@@ -4,22 +4,30 @@ using UnityEngine;
 
 public class Brick
 {
+   public float sizeX;
+    public float sizeZ;
+    public float height;
+    public GameObject cube { get; private set; }
+
     private LegoTools tools;
     private StudDictionary myStuds;
-    private GameObject cube;
-    private bool canBuild;
+    private bool canBuild, dropped;
 
-    public Brick(LegoTools _tools, float sizeX, float sizeY, float sizeZ, Material material, float height = 0.6f, bool _canBuild = true, bool canCollide = true)
+    public Brick(LegoTools _tools, float _sizeX, float _sizeZ, Material material, float _height = 0.6f, bool _canBuild = true, bool _dropped = false)
     {
+        sizeX = _sizeX;
+        sizeZ = _sizeZ;
+        height = _height;
         canBuild = _canBuild;
+        dropped = _dropped;
         tools = _tools;
         myStuds = new StudDictionary();
         cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 
-        if (!canCollide)
-            Object.DestroyImmediate(cube.GetComponent<Collider>());
+        if (dropped)
+            cube.AddComponent<Rigidbody>();
 
-        cube.transform.localScale = new Vector3(sizeX * 0.5f, sizeY * height, sizeZ * 0.5f) * tools.worldScale;
+        cube.transform.localScale = new Vector3(sizeX * 0.5f, height, sizeZ * 0.5f) * tools.worldScale;
 
         for (float x = 0; x < sizeX; x++)
         {
@@ -28,12 +36,11 @@ public class Brick
                 float fX = x / 2 - (sizeX / 4) + 0.25f;
                 float fZ = z / 2 - (sizeZ / 4) + 0.25f;
 
-                Vector3 studPos = new Vector3(fX, sizeY / 2 * height, fZ);
-
+                Vector3 studPos = new Vector3(fX, 0.5f * height, fZ);
                 GameObject newStud = tools.Clone(tools.stud, studPos);
                 newStud.transform.parent = cube.transform;
 
-                if (canBuild)
+                if (canBuild && !dropped)
                 {
                     tools.studs.Add(studPos, newStud);
                     myStuds.Add(studPos, newStud);
@@ -65,7 +72,7 @@ public class Brick
     {
         cube.transform.position = position * tools.worldScale;
 
-        if (canBuild)
+        if (canBuild && !dropped)
             foreach(KeyValuePair<Vector3, GameObject> v in myStuds.map)
             {
                 oldPosition = v.Key;
@@ -79,6 +86,16 @@ public class Brick
     public void SetPosition(float x, float y, float z)
     {
         SetPosition(new Vector3(x, y, z));
+    }
+
+    /// <summary>
+    /// Only works for dropped and non-build bricks.
+    /// Can be used for lerping
+    /// </summary>
+    public void SetAbsolutePosition(Vector3 position)
+    {
+        if (!canBuild || dropped)
+            cube.transform.position = position;
     }
 
     public void SetRotation(Quaternion rotation)
@@ -95,7 +112,7 @@ public class Brick
 
     public void BuildBrick(GameObject stud)
     {
-        if (!canBuild)
+        if (!canBuild || dropped)
             return;
             
         Vector3 studPos = stud.transform.position / tools.worldScale;
