@@ -16,18 +16,4 @@ public class ActivateGrabRay : MonoBehaviour
         leftGrabRay.SetActive(leftDirectGrab.interactablesSelected.Count == 0);
         rightGrabRay.SetActive(rightDirectGrab.interactablesSelected.Count == 0);
     }
-
-    public void SetTypeFromIndex(int index)
-    {
-        if (index == 0)
-        {
-            leftGrabRay.SetActive(false);
-            rightGrabRay.SetActive(false);
-        }
-        else if (index == 1)
-        {
-            leftGrabRay.SetActive(true);
-            rightGrabRay.SetActive(true);
-        }
-    }
 }
