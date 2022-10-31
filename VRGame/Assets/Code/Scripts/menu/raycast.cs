@@ -44,28 +44,37 @@ public class raycast : MonoBehaviour
 
     private void Update()
     {
-        if (AlignLineRenderer(rend) && device.action.triggered)
+        if (MenuShooter.MenuOpen)
         {
-           if(btn)
-            btn.onClick.Invoke();
-            Debug.Log(btn.name);
+            if (AlignLineRenderer(rend) && device.action.triggered)
+            {
+                if (btn)
+                    btn.onClick.Invoke();
+            }
         }
+
+        rend.enabled = MenuShooter.MenuOpen;
+   
         
     }
 
    
     public bool AlignLineRenderer(LineRenderer rend)
     {
+      
         bool hitBtn = false;
         Ray ray;
         ray =new Ray(transform.position, transform.forward);
         RaycastHit hit;
+   
 
       
 
         if (Physics.Raycast(ray,out hit, layermask))
         {
-            points[1] = transform.forward + new Vector3(0,0,hit.distance);
+            Debug.Log("distance" + hit.collider.transform.position);
+      
+            points[1] = transform.forward + new Vector3(0, 0, distance);
             rend.startColor = Color.red;
             rend.endColor = Color.red;
             btn = hit.collider.gameObject.GetComponent<Button>();

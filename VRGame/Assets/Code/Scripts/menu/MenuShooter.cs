@@ -31,6 +31,7 @@ public class MenuShooter : MonoBehaviour
 
         if (leftHand.action.triggered)
         {
+            menuCubeRigid.freezeRotation = false;
             if (MenuOpen)
             {
                 lerpped = true;
@@ -45,14 +46,17 @@ public class MenuShooter : MonoBehaviour
       
         if(shooted && menuCubeRigid.velocity.magnitude < 1f)
         {
-            Debug.Log(menuCube.transform.rotation);
+
             var desiredQ = Quaternion.Euler(0, 0, 0);
-      
+            Debug.Log(Quaternion.Angle(menuCube.transform.rotation, desiredQ));
             menuCube.transform.rotation = Quaternion.Lerp(menuCube.transform.rotation, desiredQ, speed * Time.deltaTime);
-            if (menuCube.transform.rotation == desiredQ)
+            if (Quaternion.Angle(menuCube.transform.rotation  ,desiredQ) < 3f)
             {
+            
+                Debug.Log("GOT IT");
                 shooted = false;
                 toggleMenu(true);
+                menuCubeRigid.freezeRotation = true;
             }
         }
 
@@ -61,10 +65,12 @@ public class MenuShooter : MonoBehaviour
     }
     private void ShootMenu()
     {
+        menuCube.SetActive(true);
         menuCube.transform.position = transform.position;
         menuCubeRigid.velocity = (transform.forward * 10) + (transform.up * 3);
         MenuOpen = true;
         shooted = true;
+   
 
     }
 
@@ -80,18 +86,18 @@ public class MenuShooter : MonoBehaviour
             lerpped = false;
             menuCubeRigid.velocity = Vector3.zero;
             toggleMenu(false);
+            menuCube.SetActive(false);
 
         }
     }
     private void toggleMenu(bool open)
     {
-        if (menuCubeRigid.velocity == Vector3.zero)
-        {
+    
             foreach (Transform child in menuCube.transform)
             {
                 Debug.Log(open);
                 child.gameObject.SetActive(open);
             }
         }
-    }
+    
 }
