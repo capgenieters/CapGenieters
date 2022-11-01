@@ -5,20 +5,28 @@ public class LegoVRTools
 {
     // Prevent adding more garbage every frame
     List<InputDevice> rightHandDevices, leftHandDevices;
+    Dictionary<InputFeatureUsage<bool>, bool[]> previous = new Dictionary<InputFeatureUsage<bool>, bool[]>();
     InputDevice rightController, leftController;
 
-    bool rightButtonPrevious, leftButtonPrevious;
-
-    public bool[] GetButtonStates(InputFeatureUsage<bool> inputFeature, bool detectPressOnly = true)
+    /// <summary>
+    /// Use this function at the beginning of the game to get the controllers, or run it every once in a while to make sure the player's controllers are still found. 
+    /// </summary>
+    public void UpdateControllers()
     {
-        bool rightButtonPressed = false, leftButtonPressed = false;
-
         // Get the right and left hand devices
         rightHandDevices = new List<InputDevice>();
         leftHandDevices = new List<InputDevice>();
 
         InputDevices.GetDevicesAtXRNode(XRNode.RightHand, rightHandDevices);
         InputDevices.GetDevicesAtXRNode(XRNode.LeftHand, leftHandDevices);
+    }
+
+    /// <summary>
+    /// Use this function to check wether a certain controller button is pressed or held. The first parameter is the input feature (the button) and the second parameter is wether to detect a press only, or if the button is held.
+    /// </summary>
+    public bool[] GetButtonStates(InputFeatureUsage<bool> inputFeature, bool detectPressOnly = true)
+    {
+        bool rightButtonPressed = false, leftButtonPressed = false;
 
         // If a device is found, get it's gripButton state and set it
         if(rightHandDevices.Count > 0)
@@ -33,15 +41,18 @@ public class LegoVRTools
             leftController.TryGetFeatureValue(inputFeature, out leftButtonPressed);
         }
 
-        bool[] result;
+        bool[] result, cPrevious;
+        if (previous.ContainsKey(inputFeature))
+            cPrevious = previous[inputFeature];
+        else
+            cPrevious = new bool[2];
 
         if (detectPressOnly)
-            result = new bool[2] { leftButtonPressed && !leftButtonPrevious, rightButtonPressed && !rightButtonPrevious };
+            result = new bool[2] { leftButtonPressed && !cPrevious[0], rightButtonPressed && !cPrevious[1] };
         else
             result = new bool[2] { leftButtonPressed, rightButtonPressed };
 
-        rightButtonPrevious = rightButtonPressed;
-        leftButtonPrevious = leftButtonPressed;
+        previous[inputFeature] = new bool[2] { leftButtonPressed, rightButtonPressed };
 
         return result;
     }

@@ -22,10 +22,9 @@ public class LegoGenerator : MonoBehaviour
     [SerializeField] float worldScale = 0.5f;
 
     private List<Brick> cloudPool = new List<Brick>();
-    private List<GameObject> breakableObjects = new List<GameObject>();
-    private List<Brick> droppedBricksPool = new List<Brick>();
     private List<Animal> animals = new List<Animal>();
     private LegoTools legoTools;
+    private LegoInteraction objInteraction;
     private LegoVRTools vrTools;
     private LegoInventory inventory;
 
@@ -36,6 +35,7 @@ public class LegoGenerator : MonoBehaviour
         legoTools = new LegoTools(Stud, worldScale);
         vrTools = new LegoVRTools();
         inventory = new LegoInventory(legoTools);
+        objInteraction = new LegoInteraction(legoTools);
 
         // Create the Materials and add the colors and instancing
         CreateMaterials();
@@ -58,8 +58,11 @@ public class LegoGenerator : MonoBehaviour
             z = legoTools.RandomRange(10, Dimentions.y - 10);
 
             GameObject pigObj = legoTools.Clone(Pig, new Vector3(x, 5.0f, z), Quaternion.identity);
+            GameObject pidgeonObj = legoTools.Clone(Pidgeon, new Vector3(x, 5.0f, z), Quaternion.identity);
             Animal pig = new Animal(pigObj, x, z);
+            Animal pidgeon = new Animal(pidgeonObj, x, z, true);
             animals.Add(pig);
+            animals.Add(pidgeon);
         }
 
         // Add some starter bricks
@@ -68,14 +71,6 @@ public class LegoGenerator : MonoBehaviour
 
         for (int i = 0; i < 10; i++)
             inventory.AddItem(1, 1, 0.2f);
-
-        // Spawn some bricks for the player to suck up
-        for (int i = 0; i < 30; i++)
-        {
-            Brick droppedBrick = new Brick(legoTools, 1, 1, BrightGreen, 0.6f, false, true);
-            droppedBrick.SetPosition(Dimentions.x / 2, 1.25f, Dimentions.y / 2);
-            droppedBricksPool.Add(droppedBrick);
-        }
     }
 
     private void CreateMaterials()
@@ -95,7 +90,8 @@ public class LegoGenerator : MonoBehaviour
     private void FixedUpdate()
     {
         seed++;
-        GenerateClouds();
+        if (Time.frameCount % 20 == 0) 
+            GenerateClouds();
 
         foreach(Animal a in animals)
             a.FixedUpdate();
@@ -113,28 +109,13 @@ public class LegoGenerator : MonoBehaviour
 
             debugItemDisplay.text = finalText;
         }
-
-        // Check for breaking objects
-        foreach(GameObject breakable in breakableObjects)
-        {
-            if (!breakable.activeInHierarchy)
-                continue;
-
-            float distance = Vector3.Distance(rightHand.transform.position, breakable.transform.position);
-
-            if (distance < 2.0f)
-            {
-                BreakObject(breakable);
-            }
-        }
     }
 
     private void Update()
     {
+        // Update controllers and get wether the grip buttons are pressed
+        vrTools.UpdateControllers();
         bool[] gripStates = vrTools.GetButtonStates(UnityEngine.XR.CommonUsages.gripButton, false);
-
-        if (!gripStates[0] && !gripStates[1])
-            return;
 
         if (gripStates[1])
         {
@@ -152,14 +133,15 @@ public class LegoGenerator : MonoBehaviour
                 if (legoTools.studs.Has(legoPos))
                 {
                     inventory.PlaceItem(legoPos);
-                    return;
+                    break;
                 }
             }
         }
 
+        // Suck up dropped lego bricks
         if (gripStates[0])
         {
-            foreach (Brick droppedBrick in droppedBricksPool)
+            foreach (Brick droppedBrick in legoTools.droppedBricksPool)
             {
                 // Make sure brick is active in the world
                 if (!droppedBrick.cube.activeInHierarchy)
@@ -182,7 +164,7 @@ public class LegoGenerator : MonoBehaviour
                 }
             }
         }
-        
+
         // Check wether to switch to the next item
         bool[] buttonStates = vrTools.GetButtonStates(UnityEngine.XR.CommonUsages.primaryButton);
 
@@ -190,30 +172,9 @@ public class LegoGenerator : MonoBehaviour
             inventory.SetSelectedIndex(inventory.selectedIndex - 1);
         else if (buttonStates[1])
             inventory.SetSelectedIndex(inventory.selectedIndex + 1);
-    }
 
-    private void BreakObject(GameObject obj)
-    {
-        Vector3 scale = obj.transform.localScale;
-        Vector3 dropPoint = obj.transform.position;
-        
-        float dropAmount = scale.x / worldScale + scale.y / worldScale + scale.z / worldScale;
-        int plateAmount = (int)Mathf.Ceil(dropAmount * 0.3f) * 3;
-        int brickAmount = (int)Mathf.Ceil(dropAmount * 0.7f) * 3;
-
-        for (int i = 0; i < plateAmount; i++)
-        {
-            Brick b = new Brick(legoTools, 1, 1, BrightGreen, 0.2f, false, true);
-            b.SetPosition(dropPoint * worldScale);
-        }
-
-        for (int i = 0; i < brickAmount; i++)
-        {
-            Brick b = new Brick(legoTools, 1, 1, BrightGreen, 0.6f, false, true);
-            b.SetPosition(dropPoint * worldScale);
-        }
-
-        obj.SetActive(false);
+        // Update controller positions
+        objInteraction.UpdateController(leftHand.position);
     }
 
     Brick cloudBlock;
@@ -360,13 +321,14 @@ public class LegoGenerator : MonoBehaviour
             z += rand2 < 6 ? 0.25f : -0.25f;
 
             GameObject newCactus = legoTools.Clone(Cactus, new Vector3(x, y, z));
+            newCactus.AddComponent<BoxCollider>();
             newCactus.transform.rotation = Quaternion.Euler(0, rotation, 0);
 
             foreach (Renderer rend in newCactus.GetComponentsInChildren<Renderer>())
                 rend.material = BrightGreen;
 
             newCactus.transform.parent = this.transform;
-            breakableObjects.Add(newCactus);
+            objInteraction.AddObject(newCactus);
         }
     }
 
@@ -379,12 +341,13 @@ public class LegoGenerator : MonoBehaviour
             y += 0.6f;
 
             GameObject newTree = legoTools.Clone(Tree, new Vector3(x, y, z));
+            newTree.AddComponent<BoxCollider>();
 
             foreach (Renderer rend in newTree.GetComponentsInChildren<Renderer>())
                 rend.material = rend.name == "Leaves" ? BrightGreen : Brown;
 
             newTree.transform.parent = this.transform;
-            breakableObjects.Add(newTree);
+            objInteraction.AddObject(newTree);
         }
     }
 }

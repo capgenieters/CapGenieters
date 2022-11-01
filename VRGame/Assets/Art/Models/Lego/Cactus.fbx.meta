@@ -2,16 +2,7 @@ fileFormatVersion: 2
 guid: 230d16f8ac8b438469f47fcae88a928a
 ModelImporter:
   serializedVersion: 21300
-  internalIDToNameTable:
-  - first:
-      74: -964976222175665827
-    second: Plate.002|Plate.002Action
-  - first:
-      74: 1151043626495029757
-    second: Plate.005|Plate.002Action
-  - first:
-      74: -5733228856690326263
-    second: Plate.007|Plate.002Action
+  internalIDToNameTable: []
   externalObjects: {}
   materials:
     materialImportMode: 2
