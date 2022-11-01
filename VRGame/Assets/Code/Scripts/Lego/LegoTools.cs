@@ -8,6 +8,8 @@ public class LegoTools
     public GameObject stud;
     public StudDictionary studs;
 
+    public List<Brick> droppedBricksPool = new List<Brick>();
+
     public LegoTools(GameObject _stud, float _worldScale)
     {
         this.stud = _stud;

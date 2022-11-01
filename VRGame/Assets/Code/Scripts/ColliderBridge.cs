@@ -7,12 +7,12 @@ using UnityEngine;
 
 public class ColliderBridge : MonoBehaviour
 {
-    public delegate void CollisionFunction(Collision collision);
-    public CollisionFunction collisionFunction;
+    public delegate void CollisionFunction(Collider collider, Transform transform);
+    public CollisionFunction triggerEnterFunction;
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider collider)
     {
-        collisionFunction(collision);
+        triggerEnterFunction(collider, transform);
     }
 
 }
