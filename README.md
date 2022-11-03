@@ -11,9 +11,10 @@ And the following structure:
 - Start the name with the issue. (Eg. cap10)
 - Follow up with the type of issue. (Eg. bug, feature, etc.)
 - Describe the issue in one to three words. (Eg. lego-building-system)
+
 Some examples:
-cap105-bug-audio-volume-glitch
-cap84-feature-spacial-sound
+- cap105-bug-audio-volume-glitch
+- cap84-feature-spacial-sound
 
 Sources:
 - https://codingsight.com/git-branching-naming-convention-best-practices/
