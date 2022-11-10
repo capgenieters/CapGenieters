@@ -96,19 +96,8 @@ public class LegoGenerator : MonoBehaviour
         foreach(Animal a in animals)
             a.FixedUpdate();
 
-        // Update debug item ui
-        if (debugItemDisplay)
-        {
-            string finalText = "";
-
-            foreach (LegoItem item in inventory.items)
-            {
-                finalText += "[x" + item.dimentions[0] + ", z" + item.dimentions[1] + ", h" + item.dimentions[2] + "]";
-                finalText += ": " + item.amount + "\n";
-            }
-
-            debugItemDisplay.text = finalText;
-        }
+        // Update item ui
+        inventory.UpdateDisplay(leftHand.position + new Vector3(0, 0.1f, 0));
     }
 
     private void Update()

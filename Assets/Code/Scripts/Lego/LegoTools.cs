@@ -84,7 +84,7 @@ public class LegoTools
 
     public Material CreateMaterial(bool isTransparent = false)
     {
-        Material mat = new Material(Shader.Find("Standard"));
+        Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
 
         mat.enableInstancing = true;
 
