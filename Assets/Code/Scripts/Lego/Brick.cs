@@ -110,6 +110,12 @@ public class Brick
         return cube.transform.localScale;
     }
 
+    public void ScaleBrick(float amount)
+    {
+        Vector3 scale = cube.transform.localScale;
+        cube.transform.localScale = scale * amount;
+    }
+
     public void BuildBrick(GameObject stud)
     {
         if (!canBuild || dropped)
@@ -123,5 +129,10 @@ public class Brick
     public void SetActive(bool active)
     {
         cube.SetActive(active);
+    }
+
+    public void Destroy()
+    {
+        Object.Destroy(cube);
     }
 }
