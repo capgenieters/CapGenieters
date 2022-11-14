@@ -18,6 +18,7 @@ public class LegoGenerator : MonoBehaviour
     [SerializeField] GameObject Tree;
     [SerializeField] GameObject Pig;
     [SerializeField] GameObject Pidgeon;
+    [SerializeField] GameObject Chest;
     [SerializeField] int seed = 1784;
     [SerializeField] float worldScale = 0.5f;
 
@@ -71,6 +72,17 @@ public class LegoGenerator : MonoBehaviour
 
         for (int i = 0; i < 10; i++)
             inventory.AddItem(1, 1, 0.2f);
+
+        // Spawn random chest
+        Quaternion q;
+        float cx, cy, cz;
+        cx = (int)legoTools.RandomRange(5, Dimentions.x - 5) / worldScale;
+        cz = (int)legoTools.RandomRange(5, Dimentions.y - 5) / worldScale;
+        cx += 0.25f; cz += 0.25f;
+        cy = legoTools.GetTop(cx, cz);
+        q = Quaternion.Euler(0, legoTools.RandomRange(0, 360.0f), 20);
+
+        GameObject chest = legoTools.Clone(Chest, new Vector3(cx, cy, cz), q);
     }
 
     private void CreateMaterials()
@@ -96,19 +108,8 @@ public class LegoGenerator : MonoBehaviour
         foreach(Animal a in animals)
             a.FixedUpdate();
 
-        // Update debug item ui
-        if (debugItemDisplay)
-        {
-            string finalText = "";
-
-            foreach (LegoItem item in inventory.items)
-            {
-                finalText += "[x" + item.dimentions[0] + ", z" + item.dimentions[1] + ", h" + item.dimentions[2] + "]";
-                finalText += ": " + item.amount + "\n";
-            }
-
-            debugItemDisplay.text = finalText;
-        }
+        // Update item ui
+        inventory.UpdateDisplay(leftHand.position + new Vector3(0, 0.1f, 0));
     }
 
     private void Update()
