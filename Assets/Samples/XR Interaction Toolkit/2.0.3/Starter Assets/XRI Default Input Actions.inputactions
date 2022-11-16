@@ -816,6 +816,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "SuperLiminal",
+                    "type": "Button",
+                    "id": "bc728f60-7cc8-4e56-9bfa-7e47b9abf322",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -994,6 +1003,17 @@
                     "action": "Translate Anchor",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "4ef12398-0eb1-45c0-91ff-3b72700aec2b",
+                    "path": "<XRController>/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SuperLiminal",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
