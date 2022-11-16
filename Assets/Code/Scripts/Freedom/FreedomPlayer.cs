@@ -7,6 +7,9 @@ public class FreedomPlayer : MonoBehaviour
 
     [SerializeField] float MovementSpeed = 5f;
     [SerializeField] float RotationSpeed = 100f;
+    [SerializeField] float Gravity = 2.0f;
+    [Range(0.01f, 0.2f)] [SerializeField] float SurfaceAlignSpeed = 0.05f;
+
 
     private GameObject Player;
     private GameObject Camera;
@@ -45,7 +48,13 @@ public class FreedomPlayer : MonoBehaviour
 
         if (Physics.Raycast(transform.position, -transform.up, out hit))
         {
-            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation, 0.05f);
+            Player.transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation, SurfaceAlignSpeed);
+
+            // Gravity 
+            if (hit.distance > 1.1f)
+            {
+                Player.transform.position -= transform.up * Gravity * Time.deltaTime;
+            }
         }
     }
 }
