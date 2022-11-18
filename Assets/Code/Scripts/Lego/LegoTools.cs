@@ -20,22 +20,22 @@ public class LegoTools
     /// <summary>
     /// This method allows you to get the z value for a x and y.
     /// </summary>
-    public float GetTop(float x, float z, bool scale = true)
-    {
-        float y = -5.0f;
-        while (y < 64.0f)
-        {
-            if (studs.Has(new Vector3(x, y, z)))
-            {
-                Debug.Log(x + ", " + y + ", " + z);
-                return scale ? y / worldScale : y;
-            }
+    // public float GetTop(float x, float z, bool scale = true)
+    // {
+    //     float y = -5.0f;
+    //     while (y < 64.0f)
+    //     {
+    //         if (map.GetValue(x, z))
+    //         {
+    //             Debug.Log(x + ", " + y + ", " + z);
+    //             return scale ? y / worldScale : y;
+    //         }
 
-            y += 0.2f;
-        }
+    //         y += 0.2f;
+    //     }
 
-        return 0;
-    }
+    //     return 0;
+    // }
 
     /// <summary>
     /// This method will generate a random value in a certain range.
@@ -116,15 +116,7 @@ public class LegoTools
 
     public void MakeTransparent(Material material)
     {
-        material.SetOverrideTag("RenderType", "Transparent");
-        material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        material.SetInt("_ZWrite", 0);
-        material.DisableKeyword("_ALPHATEST_ON");
-        material.EnableKeyword("_ALPHABLEND_ON");
-        material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-        material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-        material.SetFloat("_Mode", 3.0f);
+        material.SetOverrideTag("SurfaceType", "Transparent");
     }
 
     /// <summary>
