@@ -6,15 +6,14 @@ public class LegoTools
 {
     public float worldScale;
     public GameObject stud;
-    public StudDictionary studs;
 
+    public List<Vector3Brick> bricks = new List<Vector3Brick>();
     public List<Brick> droppedBricksPool = new List<Brick>();
 
     public LegoTools(GameObject _stud, float _worldScale)
     {
         this.stud = _stud;
         this.worldScale = _worldScale;
-        this.studs = new StudDictionary();
     }
 
     /// <summary>
@@ -72,35 +71,35 @@ public class LegoTools
     }
 
     /// <summary>
-    /// This method will round a Vector3 position to a Lego Plate position.
+    /// This method will round a Vector3 world position to a BrickSpace position.
     /// <example>
     /// For example:
     /// <code>
     /// Vector3 p = new Vector3(0.36f, 1.63f, 1.94f);
     /// p = RoundToPlate(p.x, p.y, p.z);
     /// </code>
-    /// results in <c>p</c> having the value (0.5f, 1.6f, 2.0f).
+    /// results in <c>p</c> having the value (0, 1.6f, 2).
     /// </example>
     /// </summary>
-    public Vector3 RoundToPlate(float x, float y, float z)
+    public Vector3Int RoundToPlate(float x, float y, float z)
     {
-        return new Vector3(Mathf.Round(x * 2) / 2, Round(y, 0.2f), Mathf.Round(z * 2) / 2);
+        return new Vector3Int((int)Mathf.Round(x), (int)(Round(y, 0.4f) * 3), (int)Mathf.Round(z));
     } 
 
-    public Vector3 RoundToPlate(Vector3 vec)
+    public Vector3Int RoundToPlate(Vector3 vec)
     {
         return RoundToPlate(vec.x, vec.y, vec.z);
     } 
 
-    public Vector3 FloorToPlate(float x, float y, float z)
-    {
-        return new Vector3(Mathf.Floor(x * 2) / 2, Mathf.Floor(y * 5) / 5, Mathf.Floor(z * 2) / 2);
-    } 
+    // public Vector3Int FloorToPlate(float x, float y, float z)
+    // {
+    //     return new Vector3Int(Mathf.Floor(x), Mathf.Floor(y * 5) / 5, Mathf.Floor(z * 2) / 2);
+    // } 
 
-    public Vector3 FloorToPlate(Vector3 vec)
-    {
-        return FloorToPlate(vec.x, vec.y, vec.z);
-    } 
+    // public Vector3Int FloorToPlate(Vector3 vec)
+    // {
+    //     return FloorToPlate(vec.x, vec.y, vec.z);
+    // } 
 
     public Material CreateMaterial(bool isTransparent = false)
     {
@@ -134,6 +133,18 @@ public class LegoTools
     public GameObject Clone(GameObject obj, Vector3 pos, Quaternion rot = new Quaternion(), bool isActive = true, bool scaleToWorld = true)
     {
         Vector3 fPos = pos * (scaleToWorld ? worldScale : 1.0f);
+        GameObject clone = GameObject.Instantiate(obj, fPos, rot);
+        clone.transform.localScale *= scaleToWorld ? worldScale : 1.0f;
+        clone.SetActive(isActive);
+        return clone;
+    }
+
+    /// <summary>
+    /// This method is just a more advanced wrapper for the original instantiate.
+    /// </summary>
+    public GameObject Clone(GameObject obj, Vector3Brick pos, Quaternion rot = new Quaternion(), bool isActive = true, bool scaleToWorld = true)
+    {
+        Vector3 fPos = pos.ToVector3();
         GameObject clone = GameObject.Instantiate(obj, fPos, rot);
         clone.transform.localScale *= scaleToWorld ? worldScale : 1.0f;
         clone.SetActive(isActive);

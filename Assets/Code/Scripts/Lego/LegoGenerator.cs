@@ -30,7 +30,7 @@ public class LegoGenerator : MonoBehaviour
     private LegoVRTools vrTools;
     private LegoInventory inventory;
 
-    private Material Grey, BrightGreen, Sand, tWhite, Brown, tGrey;
+    private Material Grey, BrightGreen, Sand, tWhite, Brown;
     private int previousSeed, cloudSeed;
     private int ePosX, ePosZ;
 
@@ -58,10 +58,12 @@ public class LegoGenerator : MonoBehaviour
 
         // Add some starter bricks
         for (int i = 0; i < 5; i++)
-            inventory.AddItem(1, 1, 0.6f);
+            inventory.AddItem(1, 1, 3);
 
         for (int i = 0; i < 10; i++)
-            inventory.AddItem(1, 1, 0.2f);
+            inventory.AddItem(1, 1, 1);
+
+        // TODO: Add clouds coroutine
     }
 
     private void CreateMaterials()
@@ -71,30 +73,24 @@ public class LegoGenerator : MonoBehaviour
         Sand = legoTools.CreateMaterial();
         Brown = legoTools.CreateMaterial();
         tWhite = Object.Instantiate(Transparent);
-        tGrey = Object.Instantiate(Transparent);
         Grey.color = new Color(0.63f, 0.63f, 0.63f);
         BrightGreen.color = new Color(0, 0.57f, 0.28f);
         Sand.color = new Color(0.90f, 0.87f, 0.76f);
         Brown.color = new Color(0.42f, 0.25f, 0.13f);
         tWhite.color = new Color(0.95f, 0.95f, 0.95f, 0.5f);
-        tGrey.color = new Color(0.63f, 0.63f, 0.63f, 0.5f);
     }
 
     private void FixedUpdate()
     {
-        cloudSeed++;
-        if (Time.frameCount % 20 == 0) 
-            GenerateClouds();
-
-        foreach(Animal a in animals)
-            a.FixedUpdate();
-
-        // Update item ui
         inventory.UpdateDisplay(leftHand.position + new Vector3(0, 0.1f, 0));
     }
 
     private void Update()
     {
+        cloudSeed++;
+        if (Time.frameCount % 20 == 0) 
+            GenerateClouds();
+
         // Update controllers and get wether the grip buttons are pressed
         vrTools.UpdateControllers();
         bool[] gripStates = vrTools.GetButtonStates(UnityEngine.XR.CommonUsages.gripButton, false);
@@ -103,18 +99,17 @@ public class LegoGenerator : MonoBehaviour
         {
             // Get controller position and round it to a stud position
             Vector3 controllerPos = gripStates[1] ? rightHand.position : leftHand.position;
-            Vector3 legoPos = legoTools.RoundToPlate(controllerPos / worldScale);
-            legoPos.x += 0.25f;
-            legoPos.z += 0.25f;
+            Vector3Brick legoPos = new Vector3Brick(controllerPos, worldScale);
 
             // Check if a stud exists at this position
-            for (float i = -2; i <= 1; i++)
+            for (int i = -2; i <= 1; i++)
             {
-                legoPos.y += (i / 5);
+                Vector3Brick fPos = legoPos;
+                fPos.y += i;
 
-                if (legoTools.studs.Has(legoPos))
+                if (legoTools.bricks.Contains(fPos))
                 {
-                    inventory.PlaceItem(legoPos);
+                    inventory.PlaceItem(fPos);
                     break;
                 }
             }
@@ -161,7 +156,6 @@ public class LegoGenerator : MonoBehaviour
         // Check if the map should be regenerated. Seed changed.
         if (seed != previousSeed)
         {
-            legoTools.studs = new StudDictionary();
             foreach (Transform child in transform)
                 GameObject.Destroy(child.gameObject);
 
@@ -177,8 +171,8 @@ public class LegoGenerator : MonoBehaviour
         int poolIndex = 0;
 
         // Used to move the clouds along the map using Perlin Noise
-        for (int x = 0; x < Dimentions.x; x++)
-            for (int z = 0; z < Dimentions.y; z++)
+        for (int x = 0; x < Dimentions.x * 2; x++)
+            for (int z = 0; z < Dimentions.y * 2; z++)
             {
                 float y = Mathf.PerlinNoise(x * 0.1f + cloudMultiplier, z * 0.1f + cloudMultiplier) * 10.0f;
 
@@ -195,15 +189,15 @@ public class LegoGenerator : MonoBehaviour
                         {
                             // Move the exising cloud block to the new position
                             Brick cloudBlock = cloudPool[poolIndex];
-                            cloudBlock.SetPosition(legoTools.RoundToPlate(x, yf, z));
+                            cloudBlock.SetPosition(new Vector3Brick(x, (int)yf, z, legoTools.worldScale));
                             cloudBlock.SetActive(true);
                             poolIndex++;
                         }
                         else
                         {
                             // Create a new cloud block, set the position and move it into the cloud pool
-                            Brick cloudBlock = new Brick(legoTools, 2, 2, tWhite, 1.8f);
-                            cloudBlock.SetPosition(legoTools.RoundToPlate(x, yf, z));
+                            Brick cloudBlock = new Brick(legoTools, new Vector3Int(2, 9, 2), tWhite);
+                            cloudBlock.SetPosition(new Vector3Brick(x, (int)yf, z, legoTools.worldScale));
                             cloudPool.Add(cloudBlock);
                         }
                     }
@@ -212,18 +206,21 @@ public class LegoGenerator : MonoBehaviour
 
         // Make the unused cloud blocks inactive
         if (cloudPool.Count > poolIndex)
+        {
             for (int i = poolIndex; i < cloudPool.Count; i++)
             {
                 cloudPool[i].SetActive(false);
             }
+        }
     } 
 
     void GenerateMap()
     {
         float multiplier = seed * 0.01f;
-        float[,] map = new float[Dimentions.x * 2, Dimentions.y * 2];
+        int[,] yMap = new int[Dimentions.x * 2, Dimentions.y * 2];
 
         for (int x = 0; x < Dimentions.x * 2; x += 2)
+        {
             for (int z = 0; z < Dimentions.y * 2; z += 2)
             {
                 // Generate base terrain and hills.
@@ -240,42 +237,42 @@ public class LegoGenerator : MonoBehaviour
                     lakeHeight = 10.0f;
                 
                 y -= (lakeHeight - 10.0f);
-
-                // Round down the Y to plates
-                y = legoTools.Round(y, 0.4f);
-                map[x, z] = y;
+                yMap[x, z] = (int)(y / 0.4f);
             }
+        }
 
         // Make a platform for the broken elevator
         ePosX = Random.Range(2, Dimentions.x / 2 - (2 + elevatorSize / 2)) * 2;
         ePosZ = Random.Range(2, Dimentions.y / 2 - (2 + elevatorSize / 2)) * 2;
 
-        float lowestPoint = Mathf.Min(map[ePosX, ePosZ], map[ePosX + elevatorSize, ePosZ + elevatorSize]);
-        lowestPoint = Mathf.Min(lowestPoint, map[ePosX + elevatorSize, ePosZ]);
-        lowestPoint = Mathf.Min(lowestPoint, map[ePosX, ePosZ + elevatorSize]);
-        lowestPoint += 0.8f;
+        int lowestPoint = Mathf.Min(yMap[ePosX, ePosZ], yMap[ePosX + elevatorSize, ePosZ + elevatorSize]);
+        lowestPoint = Mathf.Min(lowestPoint, yMap[ePosX + elevatorSize, ePosZ]);
+        lowestPoint = Mathf.Min(lowestPoint, yMap[ePosX, ePosZ + elevatorSize]);
+        lowestPoint += 2;
 
         for (int x = ePosX; x < ePosX + elevatorSize; x++)
             for (int z = ePosZ; z < ePosZ + elevatorSize; z++)
-                map[x, z] = lowestPoint;
+                yMap[x, z] = lowestPoint;
 
-        GenerateElevator(map[ePosX, ePosZ] + 0.6f);
+        LegoElevator elevator = new LegoElevator(legoTools, new Vector3Int(ePosX, yMap[ePosX, ePosZ], ePosZ), new Vector2Int(elevatorSize, elevatorSize));
+        elevator.GenerateElevator(transform);
 
         for (int x = 0; x < Dimentions.x * 2; x += 2)
+        {
             for (int z = 0; z < Dimentions.y * 2; z += 2)
             {
                 // Get y from previous loop
-                float y = map[x, z];
+                int y = yMap[x, z];
 
                 if (x >= ePosX && x < ePosX + elevatorSize && z >= ePosZ && z < ePosZ + elevatorSize)
                 {
-                    Brick newBrick = new Brick(legoTools, 2, 2, Grey, 2.4f, false);
+                    Brick newBrick = new Brick(legoTools, new Vector3Int(2, 9, 2), Grey, false);
                     newBrick.SetPosition(x, y, z);
                     newBrick.SetParent(this.transform);
                 }
                 else
                 {
-                    Brick newBrick = new Brick(legoTools, 2, 2, y > 1.2f ? BrightGreen : Sand, 2.4f);
+                    Brick newBrick = new Brick(legoTools, new Vector3Int(2, 9, 2), y > 1.2f ? BrightGreen : Sand);
                     newBrick.SetPosition(x, y, z);
                     newBrick.SetParent(this.transform);
 
@@ -286,29 +283,17 @@ public class LegoGenerator : MonoBehaviour
                     }
                     else
                     {
-                        DistributeGrass(x, y, z);
+                        DistributeGrass(new Vector3Brick(x, y, z, worldScale));
                         DistributeTrees(x, y, z);
                     }
                 }
             }
+        }
     }
 
-    private void GenerateElevator(float y)
-    {
-        for (int x = ePosX; x < ePosX + elevatorSize; x++)
-            for (int z = ePosZ; z < ePosZ + elevatorSize; z++)
-                for (float fy = y; fy < y + 5 * 1.2f; fy++)
-                {
-                    if (x != ePosX && x != ePosX + elevatorSize - 1 && z != ePosZ && z != ePosZ + elevatorSize - 1)
-                        continue;
+    // TODO: Merge into 1 method
 
-                    Blueprint bp = new Blueprint(legoTools, 1, 1, tGrey);
-                    bp.SetParent(transform);
-                    bp.SetPosition(x, fy + 1.2f, z);
-                }
-    }
-
-    private void DistributeGrass(float x, float y, float z)
+    private void DistributeGrass(Vector3Brick position)
     {
         // Generate 2 random numbers to check wether grass should be placed, and where to position tiles.
         int rand = Random.Range(0, 12);    // Determine the X position and wether to place
@@ -316,12 +301,12 @@ public class LegoGenerator : MonoBehaviour
 
         if (rand == 0 || rand == 6)
         {
-            y += 1.2f;
-            x += rand == 0 ? 0f : 1f;
-            z += rand2 < 6 ? 0f : 1f;
+            position.y += 4;
+            position.x -= rand == 0 ? 0 : 0;
+            position.z -= rand2 < 6 ? 0 : 0;
 
             GameObject tile = legoTools.RandomListItem(GrassBricks);
-            GameObject newGrass = legoTools.Clone(tile, new Vector3(x, y, z));
+            GameObject newGrass = legoTools.Clone(tile, position);
             newGrass.transform.rotation = Quaternion.Euler(0, Random.Range(0, 4) * 90.0f, 0);
 
             foreach (Renderer rend in newGrass.GetComponentsInChildren<Renderer>())
@@ -344,13 +329,13 @@ public class LegoGenerator : MonoBehaviour
             z += rand2 < 6 ? 0f : 1f;
 
             GameObject tile = legoTools.RandomListItem(StoneBricks);
-            GameObject newStone = legoTools.Clone(tile, new Vector3(x, y, z));
-            newStone.transform.rotation = Quaternion.Euler(0, Random.Range(0, 4) * 90, 0);
+            // GameObject newStone = legoTools.Clone(tile, new Vector3(x, y, z));
+            // newStone.transform.rotation = Quaternion.Euler(0, Random.Range(0, 4) * 90, 0);
 
-            foreach (Renderer rend in newStone.GetComponentsInChildren<Renderer>())
-                rend.material = m;
+            // foreach (Renderer rend in newStone.GetComponentsInChildren<Renderer>())
+            //     rend.material = m;
 
-            newStone.transform.parent = this.transform;
+            // newStone.transform.parent = this.transform;
         }
     }
 
@@ -368,15 +353,15 @@ public class LegoGenerator : MonoBehaviour
             x += rand < 95 ? 0f : 1f;
             z += rand2 < 6 ? 0f : 1f;
 
-            GameObject newCactus = legoTools.Clone(Cactus, new Vector3(x, y, z));
-            newCactus.AddComponent<BoxCollider>();
-            newCactus.transform.rotation = Quaternion.Euler(0, rotation, 0);
+            // GameObject newCactus = legoTools.Clone(Cactus, new Vector3(x, y, z));
+            // newCactus.AddComponent<BoxCollider>();
+            // newCactus.transform.rotation = Quaternion.Euler(0, rotation, 0);
 
-            foreach (Renderer rend in newCactus.GetComponentsInChildren<Renderer>())
-                rend.material = BrightGreen;
+            // foreach (Renderer rend in newCactus.GetComponentsInChildren<Renderer>())
+            //     rend.material = BrightGreen;
 
-            newCactus.transform.parent = this.transform;
-            objInteraction.AddObject(newCactus);
+            // newCactus.transform.parent = this.transform;
+            // objInteraction.AddObject(newCactus);
         }
     }
 
@@ -390,14 +375,14 @@ public class LegoGenerator : MonoBehaviour
             x += 0.5f;
             z += 0.5f;
 
-            GameObject newTree = legoTools.Clone(Tree, new Vector3(x, y, z));
-            newTree.AddComponent<BoxCollider>();
+            // GameObject newTree = legoTools.Clone(Tree, new Vector3(x, y, z));
+            // newTree.AddComponent<BoxCollider>();
 
-            foreach (Renderer rend in newTree.GetComponentsInChildren<Renderer>())
-                rend.material = rend.name == "Leaves" ? BrightGreen : Brown;
+            // foreach (Renderer rend in newTree.GetComponentsInChildren<Renderer>())
+            //     rend.material = rend.name == "Leaves" ? BrightGreen : Brown;
 
-            newTree.transform.parent = this.transform;
-            objInteraction.AddObject(newTree);
+            // newTree.transform.parent = this.transform;
+            // objInteraction.AddObject(newTree);
         }
     }
 }

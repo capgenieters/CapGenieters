@@ -85,8 +85,8 @@ public class LegoInteraction
             else
             {
                 // Create a new cloud block, set the position and move it into the cloud pool
-                float height = Random.Range(0, 3) == 0 ? 0.2f : 0.6f;
-                Brick b = new Brick(tools, 1, 1, droppedMat, height, false, true);
+                int height = Random.Range(0, 3);
+                Brick b = new Brick(tools, new Vector3Int(1, height, 1), droppedMat, false, true);
                 b.SetAbsolutePosition(dropPoint);
                 pool.Add(b);
             }

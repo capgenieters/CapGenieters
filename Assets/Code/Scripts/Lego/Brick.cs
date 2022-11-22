@@ -4,48 +4,33 @@ using UnityEngine;
 
 public class Brick
 {
-    public float sizeX;
-    public float sizeZ;
-    public float height;
+    public Vector3Int size;
     public GameObject cube { get; private set; }
 
     private LegoTools tools;
-    private Vector3 offset;
-    private StudDictionary myStuds;
     private bool canBuild, dropped;
 
-    public Brick(LegoTools _tools, float _sizeX, float _sizeZ, Material material, float _height = 1.2f, bool _canBuild = true, bool _dropped = false)
+    public Brick(LegoTools tools, Vector3Int size, Material material, bool canBuild = true, bool dropped = false)
     {
-        sizeX = _sizeX;
-        sizeZ = _sizeZ;
-        height = _height;
-        canBuild = _canBuild;
-        dropped = _dropped;
-        tools = _tools;
-        myStuds = new StudDictionary();
+        this.size = size;
+        this.canBuild = canBuild;
+        this.dropped = dropped;
+        this.tools = tools;
         cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        offset = new Vector3(Mathf.Floor(sizeX / 2) / 2, 0, Mathf.Floor(sizeZ / 2) / 2);
 
         if (dropped)
             cube.AddComponent<Rigidbody>();
 
-        cube.transform.localScale = new Vector3(sizeX, height, sizeZ) * tools.worldScale;
+        // Scale the bricks down to worldScale
+        cube.transform.localScale = new Vector3(size.x, size.y * 0.4f, size.z) * tools.worldScale;
 
-        for (float x = 0; x < sizeX; x++)
-            for (float z = 0; z < sizeZ ; z++)
+        // Add studs to the brick
+        for (int x = 0; x < size.x; x++)
+            for (int z = 0; z < size.z ; z++)
             {
-                float fX = x - (sizeX / 2) + 0.5f;
-                float fZ = z - (sizeZ / 2) + 0.5f;
-
-                Vector3 studPos = new Vector3(fX, 0.5f * height, fZ);
+                Vector3 studPos = new Vector3(x - 0.5f, size.y * 0.2f, z - 0.5f);
                 GameObject newStud = tools.Clone(tools.stud, studPos);
                 newStud.transform.parent = cube.transform;
-
-                if (canBuild && !dropped)
-                {
-                    tools.studs.Add(studPos, newStud);
-                    myStuds.Add(studPos, newStud);
-                }
             }
 
         foreach (Renderer rend in cube.GetComponentsInChildren<Renderer>())
@@ -67,24 +52,20 @@ public class Brick
         child.SetParent(cube.transform);
     }
 
-    public void SetPosition(Vector3 position)
+    /// <summary>
+    /// Set the brick position in BrickSpace
+    /// </summary>
+    public void SetPosition(Vector3Brick position)
     {
-        cube.transform.position = position * tools.worldScale + offset * tools.worldScale;
-
-        if (canBuild && !dropped)
-            foreach(KeyValuePair<Vector3, GameObject> v in myStuds.map)
-            {
-                Vector3 oldPosition = v.Key;
-                Vector3 pStud = v.Value.transform.position / tools.worldScale;
-
-                tools.studs.Add(pStud, v.Value);
-                tools.studs.Remove(oldPosition);
-            }
+        cube.transform.position = position.ToVector3(new Vector2Int(size.x, size.z));
     }
 
-    public void SetPosition(float x, float y, float z)
+    /// <summary>
+    /// Set the brick position in BrickSpace
+    /// </summary>
+    public void SetPosition(int x, int y, int z)
     {
-        SetPosition(new Vector3(x, y, z));
+        SetPosition(new Vector3Brick(x, y, z, tools.worldScale));
     }
 
     /// <summary>
@@ -113,16 +94,6 @@ public class Brick
     {
         Vector3 scale = cube.transform.localScale;
         cube.transform.localScale = scale * amount;
-    }
-
-    public void BuildBrick(GameObject stud)
-    {
-        if (!canBuild || dropped)
-            return;
-            
-        Vector3 studPos = stud.transform.position / tools.worldScale;
-        studPos.y += this.cube.transform.localScale.y / tools.worldScale / 2;
-        SetPosition(studPos);
     }
 
     public void SetActive(bool active)
