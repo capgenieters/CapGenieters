@@ -176,30 +176,30 @@ public class LegoGenerator : MonoBehaviour
             {
                 float y = Mathf.PerlinNoise(x * 0.1f + cloudMultiplier, z * 0.1f + cloudMultiplier) * 10.0f;
 
-                if (y > 5.75f)
-                {
-                    for (int i = 0; i < 2; i++)
-                    {
-                        // Get the final Y coord for the original block and the mirrored block
-                        float yf = i == 0 ? y : -y + 11.5f;
-                        yf += 7.5f / worldScale;
+                if (y <= 5.75f)
+                    continue;
 
-                        // Check if there already is a cloud block in the object pool
-                        if (poolIndex < cloudPool.Count)
-                        {
-                            // Move the exising cloud block to the new position
-                            Brick cloudBlock = cloudPool[poolIndex];
-                            cloudBlock.SetPosition(new Vector3Brick(x, (int)yf, z, legoTools.worldScale));
-                            cloudBlock.SetActive(true);
-                            poolIndex++;
-                        }
-                        else
-                        {
-                            // Create a new cloud block, set the position and move it into the cloud pool
-                            Brick cloudBlock = new Brick(legoTools, new Vector3Int(2, 9, 2), tWhite);
-                            cloudBlock.SetPosition(new Vector3Brick(x, (int)yf, z, legoTools.worldScale));
-                            cloudPool.Add(cloudBlock);
-                        }
+                for (int i = 0; i < 2; i++)
+                {
+                    // Get the final Y coord for the original block and the mirrored block
+                    float yf = i == 0 ? y : -y + 11.5f;
+                    yf += 7.5f / worldScale;
+
+                    // Check if there already is a cloud block in the object pool
+                    if (poolIndex < cloudPool.Count)
+                    {
+                        // Move the exising cloud block to the new position
+                        Brick cloudBlock = cloudPool[poolIndex];
+                        cloudBlock.SetPosition(new Vector3Brick(x, (int)yf, z, legoTools.worldScale));
+                        cloudBlock.SetActive(true);
+                        poolIndex++;
+                    }
+                    else
+                    {
+                        // Create a new cloud block, set the position and move it into the cloud pool
+                        Brick cloudBlock = new Brick(legoTools, new Vector3Int(2, 9, 2), tWhite);
+                        cloudBlock.SetPosition(new Vector3Brick(x, (int)yf, z, legoTools.worldScale));
+                        cloudPool.Add(cloudBlock);
                     }
                 }
             }
@@ -278,7 +278,7 @@ public class LegoGenerator : MonoBehaviour
 
                     if (y <= 1.2f)
                     {
-                        DistributeStone(x, y, z, Grey);
+                        DistributeStone(new Vector3Brick(x, y, z, worldScale), Grey);
                         DistributeCactus(x, y, z);
                     }
                     else
@@ -302,12 +302,14 @@ public class LegoGenerator : MonoBehaviour
         if (rand == 0 || rand == 6)
         {
             position.y += 4;
-            position.x -= rand == 0 ? 0 : 0;
-            position.z -= rand2 < 6 ? 0 : 0;
+            position.x -= rand == 0 ? 0 : -1;
+            position.z -= rand2 < 6 ? 0 : -1;
 
             GameObject tile = legoTools.RandomListItem(GrassBricks);
             GameObject newGrass = legoTools.Clone(tile, position);
-            newGrass.transform.rotation = Quaternion.Euler(0, Random.Range(0, 4) * 90.0f, 0);
+            Transform tGrass = newGrass.transform;
+            tGrass.position = new Vector3(tGrass.position.x, tGrass.position.y + 0.05f, tGrass.position.z);
+            tGrass.rotation = Quaternion.Euler(0, Random.Range(0, 4) * 90.0f, 0);
 
             foreach (Renderer rend in newGrass.GetComponentsInChildren<Renderer>())
                 rend.material = BrightGreen;
@@ -316,7 +318,7 @@ public class LegoGenerator : MonoBehaviour
         }
     }
 
-    private void DistributeStone(float x, float y, float z, Material m)
+    private void DistributeStone(Vector3Brick position, Material m)
     {
         // Generate 3 random numbers to check wether stone should be placed, and where to position tiles.
         int rand = Random.Range(0, 24);    // Determine the X position and wether to place
@@ -324,18 +326,21 @@ public class LegoGenerator : MonoBehaviour
 
         if (rand == 0)
         {
-            y += 1.2f;
-            x += rand < 12 ? 0f : 1f;
-            z += rand2 < 6 ? 0f : 1f;
+            position.y += 4;
+            position.x -= rand < 12 ? 0 : -1;
+            position.z -= rand2 < 6 ? 0 : -1;
 
             GameObject tile = legoTools.RandomListItem(StoneBricks);
-            // GameObject newStone = legoTools.Clone(tile, new Vector3(x, y, z));
-            // newStone.transform.rotation = Quaternion.Euler(0, Random.Range(0, 4) * 90, 0);
+            GameObject newStone = legoTools.Clone(tile, position);
+            Transform tStone = newStone.transform;
+            tStone.position = new Vector3(tStone.position.x, tStone.position.y + 0.05f, tStone.position.z);
+            tStone.rotation = Quaternion.Euler(0, Random.Range(0, 4) * 90.0f, 0);
+            newStone.transform.rotation = Quaternion.Euler(0, Random.Range(0, 4) * 90, 0);
 
-            // foreach (Renderer rend in newStone.GetComponentsInChildren<Renderer>())
-            //     rend.material = m;
+            foreach (Renderer rend in newStone.GetComponentsInChildren<Renderer>())
+                rend.material = m;
 
-            // newStone.transform.parent = this.transform;
+            newStone.transform.parent = this.transform;
         }
     }
 
