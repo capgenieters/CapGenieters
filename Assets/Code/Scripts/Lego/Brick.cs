@@ -1,11 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Brick
 {
-    public Vector3Int size;
+    public Vector3Int size { get; private set; }
     public GameObject cube { get; private set; }
+    public Vector3Brick previousPosition { get; private set; }
+    public Vector3Brick position { get; private set; }
 
     private LegoTools tools;
     private bool canBuild, dropped;
@@ -26,12 +26,14 @@ public class Brick
 
         // Add studs to the brick
         for (int x = 0; x < size.x; x++)
+        {
             for (int z = 0; z < size.z ; z++)
             {
                 Vector3 studPos = new Vector3(x - 0.5f, size.y * 0.2f, z - 0.5f);
                 GameObject newStud = tools.Clone(tools.stud, studPos);
                 newStud.transform.parent = cube.transform;
             }
+        }
 
         foreach (Renderer rend in cube.GetComponentsInChildren<Renderer>())
             rend.material = material;
@@ -58,6 +60,14 @@ public class Brick
     public void SetPosition(Vector3Brick position)
     {
         cube.transform.position = position.ToVector3(new Vector2Int(size.x, size.z));
+        this.position = position;
+
+        if (canBuild)
+        {
+            tools.AddBrickToBricks(this);
+        }
+
+        this.previousPosition = position;
     }
 
     /// <summary>

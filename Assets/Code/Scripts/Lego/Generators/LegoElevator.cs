@@ -21,7 +21,7 @@ public class LegoElevator
     {
         for (int x = position.x; x < position.x + size.x; x++)
             for (int z = position.z; z < position.z + size.y; z++)
-                for (int fy = position.y; fy < position.y + 5; fy++)
+                for (int fy = position.y; fy < position.y + 15; fy += 3)
                 {
                     // Check if the current brick is a wall
                     if (x != position.x && x != position.x + size.x - 1)
@@ -31,7 +31,7 @@ public class LegoElevator
                         continue;
 
                     // Create a new blueprint brick
-                    Blueprint bp = new Blueprint(tools, 1, 1, grey);
+                    Blueprint bp = new Blueprint(tools, new Vector3Int(1, 3, 1), grey);
                     bp.SetParent(parent);
                     bp.SetPosition(x, fy + 1, z);
                 }

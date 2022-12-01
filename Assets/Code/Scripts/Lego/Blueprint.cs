@@ -4,31 +4,26 @@ using UnityEngine;
 
 public class Blueprint
 {
-    public int sizeX, sizeZ;
-    public float height;
+    public Vector3Int size;
     public GameObject cube { get; private set; }
 
     private LegoTools tools;
-    private bool canBuild, dropped;
 
-    public Blueprint(LegoTools _tools, int _sizeX, int _sizeZ, Material material, float _height = 1.2f, bool filled = false)
+    public Blueprint(LegoTools tools, Vector3Int size, Material material, bool filled = false)
     {
-        sizeX = _sizeX;
-        sizeZ = _sizeZ;
-        height = _height;
-        tools = _tools;
+        this.size = size;
+        this.tools = tools;
         cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 
-        cube.transform.localScale = new Vector3(sizeX, height, sizeZ) * tools.worldScale;
+        // Scale the bricks down to worldScale
+        cube.transform.localScale = new Vector3(size.x, size.y * 0.4f, size.z) * tools.worldScale;
 
-        for (float x = 0; x < sizeX; x++)
+        // Add studs to the brick
+        for (int x = 0; x < size.x; x++)
         {
-            for (float z = 0; z < sizeZ ; z++)
+            for (int z = 0; z < size.z ; z++)
             {
-                float fX = x - (sizeX / 2) + 0.5f;
-                float fZ = z - (sizeZ / 2) + 0.5f;
-
-                Vector3 studPos = new Vector3(fX, 0.5f * height, fZ);
+                Vector3 studPos = new Vector3(x - 0.5f, size.y * 0.2f, z - 0.5f);
                 GameObject newStud = tools.Clone(tools.stud, studPos);
                 newStud.transform.parent = cube.transform;
             }
@@ -68,7 +63,7 @@ public class Blueprint
     /// </summary>
     public void SetPosition(Vector3Brick position)
     {
-        cube.transform.position = position.ToVector3(new Vector2Int(sizeX, sizeZ));
+       cube.transform.position = position.ToVector3(new Vector2Int(size.x, size.z));
     }
 
     /// <summary>

@@ -91,16 +91,6 @@ public class LegoTools
         return RoundToPlate(vec.x, vec.y, vec.z);
     } 
 
-    // public Vector3Int FloorToPlate(float x, float y, float z)
-    // {
-    //     return new Vector3Int(Mathf.Floor(x), Mathf.Floor(y * 5) / 5, Mathf.Floor(z * 2) / 2);
-    // } 
-
-    // public Vector3Int FloorToPlate(Vector3 vec)
-    // {
-    //     return FloorToPlate(vec.x, vec.y, vec.z);
-    // } 
-
     public Material CreateMaterial(bool isTransparent = false)
     {
         Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
@@ -149,5 +139,64 @@ public class LegoTools
         clone.transform.localScale *= scaleToWorld ? worldScale : 1.0f;
         clone.SetActive(isActive);
         return clone;
+    }
+
+    public void AddBrickToBricks(Brick brick)
+    {
+        for (int iteration = 0; iteration < 2; iteration++)
+        {
+            if (brick.previousPosition == null && iteration == 0)
+                continue;
+
+            for (int x = 0; x < brick.size.x; x++)
+            {
+                for (int y = 0; y < brick.size.y; y++)
+                {
+                    for (int z = 0; z < brick.size.z; z++)
+                    {
+                        if (iteration == 0)
+                        {
+                            bricks.Remove(brick.previousPosition + new Vector3Brick(x, y, z, worldScale));
+                        }
+                        else
+                        {
+                            Vector3Brick newPosition = brick.position + new Vector3Brick(x, y, z, worldScale);
+                            bricks.Add(newPosition);
+                            
+                            if (newPosition.x == 40 && newPosition.z == 40)
+                                Debug.Log(newPosition);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public bool CanBePlaced(Vector3Brick position, Vector3Int size)
+    {
+        bool canBePlaced = true;
+
+        for (int x = 0; x < size.x; x++)
+        {
+            for (int z = 0; z < size.z; z++)
+            {
+                if (!bricks.Contains(position + new Vector3Brick(x, -1, z, worldScale)))
+                {
+                    Debug.Log("No floor found at " + (position + new Vector3Brick(x, -1, z, worldScale)));
+                    canBePlaced = false;
+                }
+
+                for (int y = 0; y < size.y; y++)
+                {
+                    if (bricks.Contains(position + new Vector3Brick(x, y, z, worldScale)))
+                    {
+                        Debug.Log("Block found!");
+                        canBePlaced = false;
+                    }
+                }
+            }
+        }
+
+        return canBePlaced;
     }
 }

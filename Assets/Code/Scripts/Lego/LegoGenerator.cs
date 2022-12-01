@@ -107,7 +107,7 @@ public class LegoGenerator : MonoBehaviour
                 Vector3Brick fPos = legoPos;
                 fPos.y += i;
 
-                if (legoTools.bricks.Contains(fPos))
+                if (legoTools.CanBePlaced(fPos, new Vector3Int(1, 3, 1)))
                 {
                     inventory.PlaceItem(fPos);
                     break;
@@ -171,8 +171,8 @@ public class LegoGenerator : MonoBehaviour
         int poolIndex = 0;
 
         // Used to move the clouds along the map using Perlin Noise
-        for (int x = 0; x < Dimentions.x * 2; x++)
-            for (int z = 0; z < Dimentions.y * 2; z++)
+        for (int x = 0; x < Dimentions.x * 2; x += 2)
+            for (int z = 0; z < Dimentions.y * 2; z += 2)
             {
                 float y = Mathf.PerlinNoise(x * 0.1f + cloudMultiplier, z * 0.1f + cloudMultiplier) * 10.0f;
 
@@ -183,7 +183,7 @@ public class LegoGenerator : MonoBehaviour
                 {
                     // Get the final Y coord for the original block and the mirrored block
                     float yf = i == 0 ? y : -y + 11.5f;
-                    yf += 7.5f / worldScale;
+                    yf += 400f * worldScale;
 
                     // Check if there already is a cloud block in the object pool
                     if (poolIndex < cloudPool.Count)
@@ -197,7 +197,7 @@ public class LegoGenerator : MonoBehaviour
                     else
                     {
                         // Create a new cloud block, set the position and move it into the cloud pool
-                        Brick cloudBlock = new Brick(legoTools, new Vector3Int(2, 9, 2), tWhite);
+                        Brick cloudBlock = new Brick(legoTools, new Vector3Int(2, 9, 2), tWhite, false);
                         cloudBlock.SetPosition(new Vector3Brick(x, (int)yf, z, legoTools.worldScale));
                         cloudPool.Add(cloudBlock);
                     }
@@ -275,119 +275,68 @@ public class LegoGenerator : MonoBehaviour
                     Brick newBrick = new Brick(legoTools, new Vector3Int(2, 9, 2), y > 1.2f ? BrightGreen : Sand);
                     newBrick.SetPosition(x, y, z);
                     newBrick.SetParent(this.transform);
+                    Vector3Brick tilePos = new Vector3Brick(x, y, z, worldScale);
 
                     if (y <= 1.2f)
                     {
-                        DistributeStone(new Vector3Brick(x, y, z, worldScale), Grey);
-                        DistributeCactus(x, y, z);
+                        if (Random.Range(0, 12) == 0)
+                        {
+                            DistributeTile(tilePos, legoTools.RandomListItem(StoneBricks), Grey);
+                        }
+
+                        if (Random.Range(0, 190) == 0)
+                        {
+                            GameObject newCactus = DistributeTile(tilePos, Cactus, BrightGreen, true);
+                            newCactus.AddComponent<BoxCollider>();
+                            objInteraction.AddObject(newCactus);
+                        }
                     }
                     else
                     {
-                        DistributeGrass(new Vector3Brick(x, y, z, worldScale));
-                        DistributeTrees(x, y, z);
+                        if (Random.Range(0, 12) == 0)
+                        {
+                            DistributeTile(tilePos, legoTools.RandomListItem(GrassBricks), BrightGreen);
+                        }
+
+                        if (Random.Range(0, 128) == 0)
+                        {
+                            GameObject newTree = DistributeTile(tilePos, Tree, BrightGreen, true);
+                            foreach (Renderer rend in newTree.GetComponentsInChildren<Renderer>())
+                                rend.material = rend.name == "Leaves" ? BrightGreen : Brown;
+                            newTree.AddComponent<BoxCollider>();
+                            objInteraction.AddObject(newTree);
+                        }
                     }
                 }
             }
         }
     }
 
-    // TODO: Merge into 1 method
-
-    private void DistributeGrass(Vector3Brick position)
+    private GameObject DistributeTile(Vector3Brick position, GameObject tile, Material mat, bool center = false)
     {
-        // Generate 2 random numbers to check wether grass should be placed, and where to position tiles.
-        int rand = Random.Range(0, 12);    // Determine the X position and wether to place
-        int rand2 = Random.Range(0, 12);   // Determine the Z position
+        // Generate 2 random numbers to check where to position tiles.
+        int rand1 = Random.Range(0, 12);
+        int rand2 = Random.Range(0, 12);
 
-        if (rand == 0 || rand == 6)
+        position.y += 4;
+        if (!center)
         {
-            position.y += 4;
-            position.x -= rand == 0 ? 0 : -1;
+            position.x -= rand1 < 6 ? 0 : -1;
             position.z -= rand2 < 6 ? 0 : -1;
-
-            GameObject tile = legoTools.RandomListItem(GrassBricks);
-            GameObject newGrass = legoTools.Clone(tile, position);
-            Transform tGrass = newGrass.transform;
-            tGrass.position = new Vector3(tGrass.position.x, tGrass.position.y + 0.05f, tGrass.position.z);
-            tGrass.rotation = Quaternion.Euler(0, Random.Range(0, 4) * 90.0f, 0);
-
-            foreach (Renderer rend in newGrass.GetComponentsInChildren<Renderer>())
-                rend.material = BrightGreen;
-
-            newGrass.transform.parent = this.transform;
         }
-    }
 
-    private void DistributeStone(Vector3Brick position, Material m)
-    {
-        // Generate 3 random numbers to check wether stone should be placed, and where to position tiles.
-        int rand = Random.Range(0, 24);    // Determine the X position and wether to place
-        int rand2 = Random.Range(0, 12);   // Determine the Z position
+        GameObject newTile = legoTools.Clone(tile, position);
+        Transform tTile = newTile.transform;
+        tTile.position = new Vector3(tTile.position.x, tTile.position.y + 0.05f, tTile.position.z);
+        tTile.rotation = Quaternion.Euler(0, Random.Range(0, 4) * 90.0f, 0);
 
-        if (rand == 0)
-        {
-            position.y += 4;
-            position.x -= rand < 12 ? 0 : -1;
-            position.z -= rand2 < 6 ? 0 : -1;
+        if (center)
+            tTile.position = new Vector3(tTile.position.x, tTile.position.y, tTile.position.z); 
 
-            GameObject tile = legoTools.RandomListItem(StoneBricks);
-            GameObject newStone = legoTools.Clone(tile, position);
-            Transform tStone = newStone.transform;
-            tStone.position = new Vector3(tStone.position.x, tStone.position.y + 0.05f, tStone.position.z);
-            tStone.rotation = Quaternion.Euler(0, Random.Range(0, 4) * 90.0f, 0);
-            newStone.transform.rotation = Quaternion.Euler(0, Random.Range(0, 4) * 90, 0);
+        foreach (Renderer rend in newTile.GetComponentsInChildren<Renderer>())
+            rend.material = mat;
 
-            foreach (Renderer rend in newStone.GetComponentsInChildren<Renderer>())
-                rend.material = m;
-
-            newStone.transform.parent = this.transform;
-        }
-    }
-
-    private void DistributeCactus(float x, float y, float z)
-    {
-        // Generate 2 random numbers to check wether cactus should be placed, and where to position tiles.
-        int rand = Random.Range(0, 190);    // Determine the X position and wether to place
-        int rand2 = Random.Range(0, 12);    // Determine the Z position and the rotation
-
-        float rotation = rand2 * 90.0f % 360;
-
-        if (rand == 0)
-        {
-            y += 1.2f;
-            x += rand < 95 ? 0f : 1f;
-            z += rand2 < 6 ? 0f : 1f;
-
-            // GameObject newCactus = legoTools.Clone(Cactus, new Vector3(x, y, z));
-            // newCactus.AddComponent<BoxCollider>();
-            // newCactus.transform.rotation = Quaternion.Euler(0, rotation, 0);
-
-            // foreach (Renderer rend in newCactus.GetComponentsInChildren<Renderer>())
-            //     rend.material = BrightGreen;
-
-            // newCactus.transform.parent = this.transform;
-            // objInteraction.AddObject(newCactus);
-        }
-    }
-
-    private void DistributeTrees(float x, float y, float z)
-    {
-        int rand = Random.Range(0, 128);
-
-        if (rand == 0)
-        {
-            y += 1.2f;
-            x += 0.5f;
-            z += 0.5f;
-
-            // GameObject newTree = legoTools.Clone(Tree, new Vector3(x, y, z));
-            // newTree.AddComponent<BoxCollider>();
-
-            // foreach (Renderer rend in newTree.GetComponentsInChildren<Renderer>())
-            //     rend.material = rend.name == "Leaves" ? BrightGreen : Brown;
-
-            // newTree.transform.parent = this.transform;
-            // objInteraction.AddObject(newTree);
-        }
+        newTile.transform.parent = this.transform;
+        return newTile;
     }
 }
