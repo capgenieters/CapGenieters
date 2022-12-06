@@ -17,24 +17,21 @@ public class LegoTools
     }
 
     /// <summary>
-    /// This method allows you to get the z value for a x and y.
+    /// This method allows you to get the y value for a x and z.
     /// </summary>
-    // public float GetTop(float x, float z, bool scale = true)
-    // {
-    //     float y = -5.0f;
-    //     while (y < 64.0f)
-    //     {
-    //         if (map.GetValue(x, z))
-    //         {
-    //             Debug.Log(x + ", " + y + ", " + z);
-    //             return scale ? y / worldScale : y;
-    //         }
+    public int GetTop(int x, int z)
+    {
+        for (int y = -5; y < 64; y++)
+        {
+            if (bricks.Contains(new Vector3Brick(x, y, z, worldScale)))
+            {
+                Debug.Log(x + ", " + y + ", " + z);
+                return y;
+            }
+        }
 
-    //         y += 0.2f;
-    //     }
-
-    //     return 0;
-    // }
+        return 0;
+    }
 
     /// <summary>
     /// This method will generate a random value in a certain range.
@@ -182,7 +179,6 @@ public class LegoTools
             {
                 if (!bricks.Contains(position + new Vector3Brick(x, -1, z, worldScale)))
                 {
-                    Debug.Log("No floor found at " + (position + new Vector3Brick(x, -1, z, worldScale)));
                     canBePlaced = false;
                 }
 
@@ -190,7 +186,6 @@ public class LegoTools
                 {
                     if (bricks.Contains(position + new Vector3Brick(x, y, z, worldScale)))
                     {
-                        Debug.Log("Block found!");
                         canBePlaced = false;
                     }
                 }

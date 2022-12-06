@@ -14,10 +14,8 @@ public class LegoGenerator : MonoBehaviour
     [SerializeField] GameObject Stud;
     [SerializeField] List<GameObject> GrassBricks;
     [SerializeField] List<GameObject> StoneBricks;
-    [SerializeField] GameObject Cactus;
-    [SerializeField] GameObject Tree;
-    [SerializeField] GameObject Pig;
-    [SerializeField] GameObject Pidgeon;
+    [SerializeField] GameObject Cactus, Tree, Chest;
+    [SerializeField] GameObject Pig, Pidgeon;
     [SerializeField] Material Transparent;
     [SerializeField] int seed = -1;
     [SerializeField] float worldScale = 0.5f;
@@ -240,6 +238,14 @@ public class LegoGenerator : MonoBehaviour
                 yMap[x, z] = (int)(y / 0.4f);
             }
         }
+
+        // Spawn random chests
+        int cPosX = Random.Range(2, Dimentions.x / 2 - (2 + elevatorSize / 2)) * 2;
+        int cPosZ = Random.Range(2, Dimentions.x / 2 - (2 + elevatorSize / 2)) * 2;
+        int cPosY = legoTools.GetTop(cPosX, cPosZ);
+        Vector3Brick brickPos = new Vector3Brick(cPosX, cPosY, cPosZ, worldScale);
+
+        GameObject chest = legoTools.Clone(Chest, brickPos.ToVector3(), default, true, false);
 
         // Make a platform for the broken elevator
         ePosX = Random.Range(2, Dimentions.x / 2 - (2 + elevatorSize / 2)) * 2;
