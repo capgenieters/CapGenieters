@@ -18,6 +18,26 @@ public class LegoTools
     }
 
     /// <summary>
+    /// This method allows you to get the z value for a x and y.
+    /// </summary>
+    public float GetTop(float x, float z, bool scale = true)
+    {
+        float y = -5.0f;
+        while (y < 64.0f)
+        {
+            if (studs.Has(new Vector3(x, y, z)))
+            {
+                Debug.Log(x + ", " + y + ", " + z);
+                return scale ? y / worldScale : y;
+            }
+
+            y += 0.2f;
+        }
+
+        return 0;
+    }
+
+    /// <summary>
     /// This method will generate a random value in a certain range.
     /// The method will scale the number according to the world scale.
     /// </summary>
@@ -84,7 +104,7 @@ public class LegoTools
 
     public Material CreateMaterial(bool isTransparent = false)
     {
-        Material mat = new Material(Shader.Find("Standard"));
+        Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
 
         mat.enableInstancing = true;
 
