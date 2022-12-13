@@ -242,7 +242,7 @@ public class LegoGenerator : MonoBehaviour
         // Spawn random chests
         int cPosX = Random.Range(2, Dimentions.x / 2 - (2 + elevatorSize / 2)) * 2;
         int cPosZ = Random.Range(2, Dimentions.x / 2 - (2 + elevatorSize / 2)) * 2;
-        int cPosY = legoTools.GetTop(cPosX, cPosZ);
+        int cPosY = legoTools.GetTop(cPosX, cPosZ) + 6;
         Vector3Brick brickPos = new Vector3Brick(cPosX, cPosY, cPosZ, worldScale);
 
         GameObject chest = legoTools.Clone(Chest, brickPos.ToVector3(), default, true, false);

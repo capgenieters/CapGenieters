@@ -140,30 +140,14 @@ public class LegoTools
 
     public void AddBrickToBricks(Brick brick)
     {
-        for (int iteration = 0; iteration < 2; iteration++)
+        for (int x = 0; x < brick.size.x; x++)
         {
-            if (brick.previousPosition == null && iteration == 0)
-                continue;
-
-            for (int x = 0; x < brick.size.x; x++)
+            for (int y = 0; y < brick.size.y; y++)
             {
-                for (int y = 0; y < brick.size.y; y++)
+                for (int z = 0; z < brick.size.z; z++)
                 {
-                    for (int z = 0; z < brick.size.z; z++)
-                    {
-                        if (iteration == 0)
-                        {
-                            bricks.Remove(brick.previousPosition + new Vector3Brick(x, y, z, worldScale));
-                        }
-                        else
-                        {
-                            Vector3Brick newPosition = brick.position + new Vector3Brick(x, y, z, worldScale);
-                            bricks.Add(newPosition);
-                            
-                            if (newPosition.x == 40 && newPosition.z == 40)
-                                Debug.Log(newPosition);
-                        }
-                    }
+                    Vector3Brick newPosition = brick.position + new Vector3Brick(x, y, z, worldScale);
+                    bricks.Add(newPosition);
                 }
             }
         }
