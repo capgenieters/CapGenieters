@@ -11,8 +11,8 @@ public enum LiftState
 
 public class LiftController : MonoBehaviour
 {
-    [SerializeField]
-    private VideoPlayer _videoPlayer;
+    public LiftButton activeButton;
+    [SerializeField] private VideoPlayer _videoPlayer;
     private Animator _animator;
     private LiftState _liftState;
 
@@ -80,5 +80,12 @@ public class LiftController : MonoBehaviour
             return;
         _animator.Play("Close");
         _liftState = LiftState.closed;
+    }
+
+    public void SwitchButton(LiftButton Button)
+    {
+        activeButton.DeactiveButton();
+        activeButton = Button;
+        activeButton.ActivateButton();
     }
 }
