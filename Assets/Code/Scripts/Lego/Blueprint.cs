@@ -23,7 +23,9 @@ public class Blueprint
         {
             for (int z = 0; z < size.z ; z++)
             {
-                Vector3 studPos = new Vector3(x - 0.5f, size.y * 0.2f, z - 0.5f);
+                float xm = size.x * 0.5f - 0.5f;
+                float zm = size.z * 0.5f - 0.5f;
+                Vector3 studPos = new Vector3(x - xm, size.y * 0.2f, z - zm);
                 GameObject newStud = tools.Clone(tools.stud, studPos);
                 newStud.transform.parent = cube.transform;
             }
@@ -48,7 +50,7 @@ public class Blueprint
         foreach (Renderer rend in cube.GetComponentsInChildren<Renderer>())
         {
             Color c = rend.material.color;
-            c.a = filled ? 0.7f : 1f;
+            c.a = filled ? 1f : 0.5f;
             rend.material.color = c;
         }
     }

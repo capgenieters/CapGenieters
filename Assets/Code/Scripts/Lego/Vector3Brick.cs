@@ -50,7 +50,9 @@ public struct Vector3Brick
         Vector3 offset = Vector3.zero;
         if (brickSize != new Vector2Int())
         {
-            offset = new Vector3(brickSize.x * 0.25f * worldScale, 0, brickSize.y * 0.25f * worldScale);
+            float xo = brickSize.x * 0.5f - 0.5f;
+            float zo = brickSize.y * 0.5f - 0.5f;
+            offset = new Vector3(xo * worldScale, 0, zo * worldScale);
         }
         
         return new Vector3(x * worldScale, y * 0.4f * worldScale, z * worldScale) + offset;

@@ -29,7 +29,9 @@ public class Brick
         {
             for (int z = 0; z < size.z ; z++)
             {
-                Vector3 studPos = new Vector3(x - 0.5f, size.y * 0.2f, z - 0.5f);
+                float xm = size.x * 0.5f - 0.5f;
+                float zm = size.z * 0.5f - 0.5f;
+                Vector3 studPos = new Vector3(x - xm, size.y * 0.2f, z - zm);
                 GameObject newStud = tools.Clone(tools.stud, studPos);
                 newStud.transform.parent = cube.transform;
             }

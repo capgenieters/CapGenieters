@@ -34,7 +34,7 @@ public class LegoGenerator : MonoBehaviour
 
     private void Start() 
     {
-        legoTools = new LegoTools(Stud, worldScale);
+        legoTools = new LegoTools(Stud, worldScale, Transparent);
         vrTools = new LegoVRTools();
         inventory = new LegoInventory(legoTools);
         objInteraction = new LegoInteraction(legoTools);
@@ -240,13 +240,13 @@ public class LegoGenerator : MonoBehaviour
         }
 
         // Spawn random chests
-        int cPosX = Random.Range(2, Dimentions.x / 2 - (2 + elevatorSize / 2)) * 2;
-        int cPosZ = Random.Range(2, Dimentions.x / 2 - (2 + elevatorSize / 2)) * 2;
+        int cPosX = Random.Range(2, Dimentions.x - 2);
+        int cPosZ = Random.Range(2, Dimentions.y - 2);
         int cPosY = legoTools.GetTop(cPosX, cPosZ) + 6;
         Vector3Brick brickPos = new Vector3Brick(cPosX, cPosY, cPosZ, worldScale);
-
         GameObject chest = legoTools.Clone(Chest, brickPos.ToVector3(), default, true, false);
 
+        // TODO: Re-renerate platform if it's in the ground
         // Make a platform for the broken elevator
         ePosX = Random.Range(2, Dimentions.x / 2 - (2 + elevatorSize / 2)) * 2;
         ePosZ = Random.Range(2, Dimentions.y / 2 - (2 + elevatorSize / 2)) * 2;
@@ -309,6 +309,7 @@ public class LegoGenerator : MonoBehaviour
                             GameObject newTree = DistributeTile(tilePos, Tree, BrightGreen, true);
                             foreach (Renderer rend in newTree.GetComponentsInChildren<Renderer>())
                                 rend.material = rend.name == "Leaves" ? BrightGreen : Brown;
+
                             newTree.AddComponent<BoxCollider>();
                             objInteraction.AddObject(newTree);
                         }

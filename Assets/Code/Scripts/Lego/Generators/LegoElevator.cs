@@ -10,11 +10,11 @@ public class LegoElevator
     public LegoElevator(LegoTools tools, Vector3Int position, Vector2Int size)
     {
         this.tools = tools;
-        this.position = position;
+        this.position = position + new Vector3Int(0, 2, 0);
         this.size = size;
 
         this.grey = tools.CreateMaterial(true);
-        this.grey.color = new Color(0.63f, 0.63f, 0.63f, 0.5f);
+        this.grey.color = new Color(0.63f, 0.63f, 0.63f, 0.3f);
     }
 
     public void GenerateElevator(Transform parent)
@@ -25,10 +25,8 @@ public class LegoElevator
                 {
                     // Check if the current brick is a wall
                     if (x != position.x && x != position.x + size.x - 1)
-                        continue;
-
-                    if (z != position.z && z != position.z + size.y - 1)
-                        continue;
+                        if (z != position.z && z != position.z + size.y - 1)
+                            continue;
 
                     // Create a new blueprint brick
                     Blueprint bp = new Blueprint(tools, new Vector3Int(1, 3, 1), grey);

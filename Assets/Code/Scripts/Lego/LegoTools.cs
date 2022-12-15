@@ -10,10 +10,13 @@ public class LegoTools
     public List<Vector3Brick> bricks = new List<Vector3Brick>();
     public List<Brick> droppedBricksPool = new List<Brick>();
 
-    public LegoTools(GameObject _stud, float _worldScale)
+    private Material transparent;
+
+    public LegoTools(GameObject _stud, float _worldScale, Material transparent)
     {
         this.stud = _stud;
         this.worldScale = _worldScale;
+        this.transparent = transparent;
     }
 
     /// <summary>
@@ -21,7 +24,7 @@ public class LegoTools
     /// </summary>
     public int GetTop(int x, int z)
     {
-        for (int y = -5; y < 64; y++)
+        for (int y = 10; y < -5; y--)
         {
             if (bricks.Contains(new Vector3Brick(x, y, z, worldScale)))
             {
@@ -92,17 +95,12 @@ public class LegoTools
     {
         Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
 
+        if (isTransparent)
+            mat = Object.Instantiate(transparent);
+
         mat.enableInstancing = true;
 
-        if (isTransparent)
-            MakeTransparent(mat);
-
         return mat;
-    }
-
-    public void MakeTransparent(Material material)
-    {
-        material.SetOverrideTag("SurfaceType", "Transparent");
     }
 
     /// <summary>
