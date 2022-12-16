@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Video;
+using UnityEngine.SceneManagement;
 
 public enum LiftState
 {
@@ -9,77 +10,107 @@ public enum LiftState
     closed
 }
 
+public class TrackedPlayer 
+{
+    public string name;
+    public Vector2 position;
+    public Quaternion rotation;
+}
+
 public class LiftController : MonoBehaviour
 {
-    public LiftButton activeButton;
-    [SerializeField] private VideoPlayer _videoPlayer;
-    private Animator _animator;
-    private LiftState _liftState;
+    public string currentElevation;
+    public string nextElevation;
+    
+    private Animator animator;
+    private LiftState liftState;
 
+
+    public LiftButton activeButton;
+    [SerializeField] private VideoPlayer videoPlayer;
+    
     [SerializeField]
-    private BoxCollider _triggerCollider;
-    private Light _elevatorLight;
+    private BoxCollider triggerCollider;
+    private Light elevatorLight;
     [SerializeField]
-    private bool _liftOpened;
+    private bool liftOpened;
     [SerializeField]
-    private LayerMask _playerLayer;
-    private bool _allPlayersEntered;
+    private LayerMask playerLayer;
+    private bool allPlayersEntered;
 
     private void Awake()
     {
-        _animator = GetComponent<Animator>();
-        _liftState = LiftState.closed;
+        animator = GetComponent<Animator>();
+        liftState = LiftState.closed;
     }
     private void Update()
     {
-        if (_liftOpened)
+        if (liftOpened)
         {
-            _allPlayersEntered = CheckForPlayers();
+            CheckForPlayers();
         }
         else
         {
-            _allPlayersEntered = false;
+            allPlayersEntered = false;
         }
-        if (_liftOpened && _allPlayersEntered)
+        if (liftOpened && allPlayersEntered)
         {
             CloseLift();
         }
     }
 
-    private bool CheckForPlayers()
+    public void SwitchElevation()
+    { }
+
+    public void CheckForPlayers()
     {
-        Collider[] targets = Physics.OverlapBox(_triggerCollider.transform.position, _triggerCollider.size, _triggerCollider.transform.rotation, _playerLayer);
-        /*
-        if (targets.Length >= CheckPlayerCount.PlayerCount)
+        Vector3 overlapPosition = transform.position + triggerCollider.center;
+        Collider[] targets = Physics.OverlapBox(overlapPosition, triggerCollider.size / 2f, transform.rotation, playerLayer);
+        //Debug.Log(targets.Length);
+        /*if (targets.Length != 0)
         {
-            return true;
-        }
-        */
-        return false;
+            for (int i = 0; i < targets.Length; i++)
+            {
+                TrackPlayers(targets[i].gameObject);
+            }
+        }*/
+    }
+
+    private void ParentPlayer()
+    {
+
+    }
+
+    private void TrackPlayers(GameObject currentPlayer) 
+    {
+        Vector3 playerPosition = new Vector3(currentPlayer.transform.position.x, 0, currentPlayer.transform.position.z) + transform.position;
+        Quaternion playerRotation = currentPlayer.transform.rotation;
+        //Debug.Log(playerPosition + ", " + playerRotation);
+        //currentPlayer.transform.position = playerPosition;
     }
 
     public void PlayVideo()
     {
-        _videoPlayer.Play();
+        videoPlayer.Play();
     }
     public void RestartVideo()
     {
-        _videoPlayer.Stop();
-        _videoPlayer.Play();
+        videoPlayer.Stop();
+        videoPlayer.Play();
     }
     public void OpenLift()
     {
-        if (_liftState == LiftState.open)
+        if (liftState == LiftState.open)
             return;
-        _animator.Play("Open");
-        _liftState = LiftState.open;
+        animator.Play("Open");
+        liftState = LiftState.open;
     }
     public void CloseLift()
     {
-        if (_liftState == LiftState.closed)
+        if (liftState == LiftState.closed)
             return;
-        _animator.Play("Close");
-        _liftState = LiftState.closed;
+        animator.Play("Close");
+        liftState = LiftState.closed;
     }
 
     public void SwitchButton(LiftButton Button)
@@ -87,5 +118,11 @@ public class LiftController : MonoBehaviour
         activeButton.DeactiveButton();
         activeButton = Button;
         activeButton.ActivateButton();
+    }
+
+    private void OnDrawGizmos()
+    {
+        Vector3 overlapPosition = transform.position + triggerCollider.center;
+        Gizmos.DrawWireCube(overlapPosition, triggerCollider.size);
     }
 }
