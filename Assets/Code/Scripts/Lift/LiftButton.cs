@@ -11,7 +11,7 @@ public class LiftButton : MonoBehaviour
     
     private MeshRenderer ligthRenderer;
     [SerializeField] private LiftController liftController;
-
+    [SerializeField] private LiftButton liftButton;
     private void Awake()
     {
         ligthRenderer = buttonBase.GetComponent<MeshRenderer>();
@@ -20,7 +20,7 @@ public class LiftButton : MonoBehaviour
 
     public void PressButton()
     {
-        liftController.SwitchButton(this);
+        liftController.SwitchButton(liftButton);
     }
 
     public void ActivateButton()

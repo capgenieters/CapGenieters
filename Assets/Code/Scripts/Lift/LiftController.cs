@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Video;
 using UnityEngine.SceneManagement;
@@ -7,6 +8,7 @@ using UnityEngine.SceneManagement;
 public enum LiftState
 {
     open,
+    traveling,
     closed
 }
 
@@ -19,76 +21,148 @@ public class TrackedPlayer
 
 public class LiftController : MonoBehaviour
 {
-    public string currentElevation;
-    public string nextElevation;
-    
+    public string Destination;
+    [SerializeField] private List<LiftButton> liftButtons;
+    [SerializeField] private BoxCollider triggerCollider;
+    [SerializeField] private LayerMask playerLayer;
+    [SerializeField] private List<GameObject> trackedPlayers;
+
     private Animator animator;
-    private LiftState liftState;
-
-
-    public LiftButton activeButton;
-    [SerializeField] private VideoPlayer videoPlayer;
-    
-    [SerializeField]
-    private BoxCollider triggerCollider;
-    private Light elevatorLight;
-    [SerializeField]
-    private bool liftOpened;
-    [SerializeField]
-    private LayerMask playerLayer;
+    [SerializeField] private LiftState liftState;
+    private LiftButton activeLiftButton;
     private bool allPlayersEntered;
+    private Vector3 spawnPosition;
+    private Quaternion spawnRotation;
+    [SerializeField] private float spawnTime;
+    private float maxSpawnTime = 5f;
+    //Older code
+    [SerializeField] private VideoPlayer videoPlayer;
+    //
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
         liftState = LiftState.closed;
+        DontDestroyOnLoad(this);
     }
     private void Update()
     {
-        if (liftOpened)
+        switch (liftState)
         {
-            CheckForPlayers();
+            case LiftState.open:
+                CheckForPlayers();
+                if (Destination != string.Empty && allPlayersEntered)
+                {
+                    SwitchElevation();
+                }
+                break;
+            case LiftState.traveling:
+                SetDestinationData();
+                //
+                break;
+            case LiftState.closed:
+                break;
+            default:
+                break;
+        }
+        
+    }
+    //Scene switching
+    private async void SwitchElevation()
+    {
+        animator.Play("Close");
+        SceneManager.LoadScene(Destination);
+        await Task.Yield();
+        liftState = LiftState.traveling;
+        spawnTime = maxSpawnTime;
+        Destination = string.Empty;
+    }
+    public void OpenLift()
+    {
+        animator.Play("Open");
+        liftState = LiftState.open;
+    }
+    private void SetDestinationData()
+    {
+        transform.position = spawnPosition;
+        transform.rotation = spawnRotation;
+        if (spawnTime > 0)
+        {
+            spawnTime -= Time.deltaTime;
         }
         else
         {
-            allPlayersEntered = false;
-        }
-        if (liftOpened && allPlayersEntered)
-        {
-            CloseLift();
-        }
+            animator.Play("Open");
+            foreach (GameObject player in trackedPlayers)
+            {
+                player.transform.parent = null;
+            }
+            if (trackedPlayers.Count != 0)
+            {
+                trackedPlayers.Clear();
+            }           
+            CheckIfPlayersLeft();
+        }       
     }
-
-    public void SwitchElevation()
-    { }
-
-    public void CheckForPlayers()
+    private void CheckIfPlayersLeft()
     {
         Vector3 overlapPosition = transform.position + triggerCollider.center;
         Collider[] targets = Physics.OverlapBox(overlapPosition, triggerCollider.size / 2f, transform.rotation, playerLayer);
-        //Debug.Log(targets.Length);
-        /*if (targets.Length != 0)
+        if (targets.Length <= 0)
+        {
+            animator.Play("Close");
+            liftState = LiftState.closed;
+        }
+    }
+    //
+
+    //Button functions
+    public void SwitchButton(LiftButton lifButton)
+    {
+        if (activeLiftButton != null)
+        {
+            activeLiftButton.DeactiveButton();
+        }
+        if (liftButtons.Contains(lifButton))
+        {
+            activeLiftButton = lifButton;
+            activeLiftButton.ActivateButton();
+        }
+    }
+    public void SetNextElevation(SceneData sceneData)
+    {
+        Destination = sceneData.SceneName;
+        spawnPosition = sceneData.SpawnPosition;
+        spawnRotation = sceneData.SpawnRotation;
+    }
+    //
+
+    //Checks if player is inside the elevator
+    private void CheckForPlayers()
+    {
+        Vector3 overlapPosition = transform.position + triggerCollider.center;
+        Collider[] targets = Physics.OverlapBox(overlapPosition, triggerCollider.size / 2f, transform.rotation, playerLayer);
+        allPlayersEntered = (targets.Length == LiftManager.PlayerCount) ? true : false;
+
+        if (targets.Length != 0)
         {
             for (int i = 0; i < targets.Length; i++)
             {
-                TrackPlayers(targets[i].gameObject);
+                TrackPlayer(targets[i].transform.gameObject);
             }
-        }*/
+        }
     }
-
-    private void ParentPlayer()
+    private void TrackPlayer(GameObject targetPlayer) 
     {
-
+        if (!trackedPlayers.Contains(targetPlayer))
+        {
+            trackedPlayers.Add(targetPlayer);
+            targetPlayer.transform.parent = this.transform;
+        }
     }
+    //
 
-    private void TrackPlayers(GameObject currentPlayer) 
-    {
-        Vector3 playerPosition = new Vector3(currentPlayer.transform.position.x, 0, currentPlayer.transform.position.z) + transform.position;
-        Quaternion playerRotation = currentPlayer.transform.rotation;
-        //Debug.Log(playerPosition + ", " + playerRotation);
-        //currentPlayer.transform.position = playerPosition;
-    }
-
+    //Screen Functions
     public void PlayVideo()
     {
         videoPlayer.Play();
@@ -98,27 +172,8 @@ public class LiftController : MonoBehaviour
         videoPlayer.Stop();
         videoPlayer.Play();
     }
-    public void OpenLift()
-    {
-        if (liftState == LiftState.open)
-            return;
-        animator.Play("Open");
-        liftState = LiftState.open;
-    }
-    public void CloseLift()
-    {
-        if (liftState == LiftState.closed)
-            return;
-        animator.Play("Close");
-        liftState = LiftState.closed;
-    }
-
-    public void SwitchButton(LiftButton Button)
-    {
-        activeButton.DeactiveButton();
-        activeButton = Button;
-        activeButton.ActivateButton();
-    }
+    //
+    
 
     private void OnDrawGizmos()
     {
