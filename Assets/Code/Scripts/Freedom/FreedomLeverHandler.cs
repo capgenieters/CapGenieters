@@ -7,18 +7,14 @@ public class FreedomLeverHandler : MonoBehaviour
     private int LeversToPull = 2;
     private List<GameObject> LeversPulled = new List<GameObject>();
 
-    public void HandleLeverPull(GameObject lever, bool pulledDown)
+    public void HandleLeverPull(GameObject lever)
     {   
         Debug.Log("LeversPulled: " + LeversPulled);
         Debug.Log("Lever" + lever.name + " pulled");
 
-        if (!LeversPulled.Contains(lever) && pulledDown)
+        if (!LeversPulled.Contains(lever))
         {
             LeversPulled.Add(lever);
-        }
-        else if (LeversPulled.Contains(lever) && !pulledDown)
-        {
-            LeversPulled.Remove(lever);
         }
 
         if (LeversPulled.Count == LeversToPull)
