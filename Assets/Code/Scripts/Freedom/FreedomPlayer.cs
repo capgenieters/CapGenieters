@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class FreedomPlayer : MonoBehaviour
 {
-
     [SerializeField] float MovementSpeed = 5f;
     [SerializeField] float RotationSpeed = 100f;
     [SerializeField] float Gravity = 2.0f;
+    [SerializeField] float GroundFloatDistance = 1.5f;
     [Range(0.01f, 0.2f)] [SerializeField] float SurfaceAlignSpeed = 0.05f;
 
     public LayerMask GroundLayer;
@@ -47,19 +47,22 @@ public class FreedomPlayer : MonoBehaviour
         // Align player with ground to allow walking on slopes/walls
         RaycastHit hit;
 
-
         if (Physics.Raycast(transform.position, -transform.up, out hit))
         {
-            Debug.Log(hit.transform.gameObject.layer);
-            //if(hit.transform.gameObject.layer != GroundLayer) return;
-
-
-            Player.transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation, SurfaceAlignSpeed);
-
             // Gravity 
-            if (hit.distance > 1.1f)
+            if (hit.distance > GroundFloatDistance + 0.2f)
             {
                 Player.transform.position -= transform.up * Gravity * Time.deltaTime;
+            }
+            else if (hit.distance < GroundFloatDistance - 0.2f)
+            {
+                Player.transform.position += transform.up * Gravity * Time.deltaTime;
+            }
+
+            // Align player with ground
+            if (GroundLayer == (GroundLayer | (1 << hit.transform.gameObject.layer)))
+            {
+                Player.transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation, SurfaceAlignSpeed);
             }
         }
     }
