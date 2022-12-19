@@ -10,6 +10,7 @@ public class FreedomPlayer : MonoBehaviour
     [SerializeField] float Gravity = 2.0f;
     [Range(0.01f, 0.2f)] [SerializeField] float SurfaceAlignSpeed = 0.05f;
 
+    public LayerMask GroundLayer;
 
     private GameObject Player;
     private GameObject Camera;
@@ -46,8 +47,13 @@ public class FreedomPlayer : MonoBehaviour
         // Align player with ground to allow walking on slopes/walls
         RaycastHit hit;
 
+
         if (Physics.Raycast(transform.position, -transform.up, out hit))
         {
+            Debug.Log(hit.transform.gameObject.layer);
+            //if(hit.transform.gameObject.layer != GroundLayer) return;
+
+
             Player.transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation, SurfaceAlignSpeed);
 
             // Gravity 
