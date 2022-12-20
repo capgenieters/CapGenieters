@@ -1,9 +1,13 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class LegoElevator
 {
     public Vector3Int position;
     public Vector2Int size;
+    public List<Blueprint> blueprints = new List<Blueprint>();
+    
     private LegoTools tools;
     private Material grey;
 
@@ -32,6 +36,7 @@ public class LegoElevator
                     Blueprint bp = new Blueprint(tools, new Vector3Int(1, 3, 1), grey);
                     bp.SetParent(parent);
                     bp.SetPosition(x, fy + 1, z);
+                    blueprints.Add(bp);
                 }
     }
 } 

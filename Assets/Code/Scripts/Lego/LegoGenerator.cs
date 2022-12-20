@@ -27,6 +27,7 @@ public class LegoGenerator : MonoBehaviour
     private LegoInteraction objInteraction;
     private LegoVRTools vrTools;
     private LegoInventory inventory;
+    private LegoElevator elevator;
 
     private Material Grey, BrightGreen, Sand, tWhite, Brown;
     private int previousSeed, cloudSeed;
@@ -161,6 +162,17 @@ public class LegoGenerator : MonoBehaviour
         }
 
         previousSeed = seed;
+
+        // Temporarily use E key to fill in elevator
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            for (int i = 0; i < 4; i++)
+                if (elevator.blueprints.Count > 0)
+                {
+                    elevator.blueprints[0].SetFilled(true);
+                    elevator.blueprints.RemoveAt(0);
+                }
+        }
     }
 
     private void GenerateClouds()
@@ -227,7 +239,7 @@ public class LegoGenerator : MonoBehaviour
                 y *= Mathf.PerlinNoise(x * 0.05f + multiplier, z * 0.05f + multiplier);
 
                 // Increase the intensity of the terrain and lift it up a bit
-                y *= 1.1f; y += 0.5f;
+                y *= 2f; y -= 1f;
 
                 // Dig small holes
                 float lakeHeight = Mathf.PerlinNoise(x * 0.05f + multiplier, z * 0.05f + multiplier) * 15.0f;
@@ -240,9 +252,9 @@ public class LegoGenerator : MonoBehaviour
         }
 
         // Spawn random chests
-        int cPosX = Random.Range(2, Dimentions.x - 2);
-        int cPosZ = Random.Range(2, Dimentions.y - 2);
-        int cPosY = legoTools.GetTop(cPosX, cPosZ) + 6;
+        int cPosX = Random.Range(2, Dimentions.x - 2) * 2;
+        int cPosZ = Random.Range(2, Dimentions.y - 2) * 2;
+        int cPosY = legoTools.GetTop(cPosX, cPosZ) + 7;
         Vector3Brick brickPos = new Vector3Brick(cPosX, cPosY, cPosZ, worldScale);
         GameObject chest = legoTools.Clone(Chest, brickPos.ToVector3(), default, true, false);
 
@@ -260,7 +272,7 @@ public class LegoGenerator : MonoBehaviour
             for (int z = ePosZ; z < ePosZ + elevatorSize; z++)
                 yMap[x, z] = lowestPoint;
 
-        LegoElevator elevator = new LegoElevator(legoTools, new Vector3Int(ePosX, yMap[ePosX, ePosZ], ePosZ), new Vector2Int(elevatorSize, elevatorSize));
+        elevator = new LegoElevator(legoTools, new Vector3Int(ePosX, yMap[ePosX, ePosZ], ePosZ), new Vector2Int(elevatorSize, elevatorSize));
         elevator.GenerateElevator(transform);
 
         for (int x = 0; x < Dimentions.x * 2; x += 2)
