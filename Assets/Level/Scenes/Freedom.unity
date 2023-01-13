@@ -25311,7 +25311,7 @@ GameObject:
   - component: {fileID: 1325595387}
   - component: {fileID: 1325595386}
   - component: {fileID: 1325595392}
-  m_Layer: 13
+  m_Layer: 0
   m_Name: BIG RED SLOPE
   m_TagString: Untagged
   m_Icon: {fileID: 0}
