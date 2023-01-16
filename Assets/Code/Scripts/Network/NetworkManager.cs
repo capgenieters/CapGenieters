@@ -40,6 +40,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         base.OnPlayerEnteredRoom(newPlayer);
+        PlayerCountManager.IncreasePlayerCount();
         Debug.Log("A New Player Joined The Room.");
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        base.OnPlayerLeftRoom(otherPlayer);
+        PlayerCountManager.DecreasePlayerCount();
+        Debug.Log("A Player Left The Room.");
     }
 }

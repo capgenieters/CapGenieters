@@ -20,6 +20,7 @@ public class HandButton : XRBaseInteractable
     private bool buttonActivated;
     private float yMin = 0.0f;
     private float yMax = 0.0f;
+    [SerializeField] private float xMinMultiplier = 4f;
     private bool previousPress = false;
     private float previousHeight = 0.0f;
     
@@ -79,7 +80,7 @@ public class HandButton : XRBaseInteractable
     private void SetMinMax()
     {
         Collider collider = button.GetComponent<Collider>();
-        yMin = button.transform.localPosition.y - (collider.bounds.size.y / 4f);
+        yMin = button.transform.localPosition.y - (collider.bounds.size.y / xMinMultiplier);
         yMax = button.transform.localPosition.y;
     }
 
