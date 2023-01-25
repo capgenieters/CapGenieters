@@ -7,6 +7,12 @@ public class TriggerTimeline : MonoBehaviour
 {
     [SerializeField] PlayableDirector director;
     [SerializeField] bool activeAfterPlay = true;
+    private PlayableDirector director2;
+
+    void Awake()
+    {
+        director2 = GameObject.Find("Red").GetComponent<PlayableDirector>();
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -14,6 +20,7 @@ public class TriggerTimeline : MonoBehaviour
         {
             director.Play();
             this.transform.parent.gameObject.SetActive(activeAfterPlay);
+            Debug.Log(director2);
         }
     }
 }
