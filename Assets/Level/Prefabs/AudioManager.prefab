@@ -41,19 +41,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 919324666860636196}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1183d2b0ca9ae940b6a1472b2a92103, type: 3}
+  m_Script: {fileID: 11500000, guid: 7e0464a9d03e6b44891228ab524b2ca7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sounds:
-  - name: Theme
-    clip: {fileID: 8300000, guid: 1d12abf79040fdd4dbbba70cd113b4a7, type: 3}
-    volume: 0.5
-    pitch: 1.5
-    loop: 1
-    source: {fileID: 0}
-  - name: SoundEffect
-    clip: {fileID: 8300000, guid: 9bbb3fea1af7d13438c1ebd8dd24e270, type: 3}
-    volume: 0.5
-    pitch: 1.5
-    loop: 0
-    source: {fileID: 0}
+  soundName: 
+  clip: {fileID: 0}
+  volume: 0
+  pitch: 0
+  maxDistance: 0
+  spatialBlend: 0
+  loop: 0
+  fadeIn: 0
+  fadeOut: 0
+  source: {fileID: 0}
