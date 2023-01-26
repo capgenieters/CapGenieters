@@ -19,7 +19,7 @@ public class LegoGenerator : MonoBehaviour
     [SerializeField] Material Transparent;
     [SerializeField] int seed = -1;
     [SerializeField] float worldScale = 0.5f;
-    [SerializeField] int elevatorSize = 10;
+    [SerializeField] int elevatorSize = 20;
     [SerializeField] int chestCount = 5;
     [SerializeField] GameObject elevatorObject;
 
@@ -34,7 +34,8 @@ public class LegoGenerator : MonoBehaviour
     private Material Grey, BrightGreen, Sand, tWhite, Brown;
     private int previousSeed, cloudSeed;
     private int ePosX, ePosZ;
-    private int remainingChests, fillCount;
+    private int remainingChests, fillCount = 0;
+    private GameObject elevatorClone;
 
     private void Start() 
     {
@@ -287,7 +288,7 @@ public class LegoGenerator : MonoBehaviour
         elevator.GenerateElevator(transform);
 
         // Spawn elevator at the plateau
-        GameObject elevatorClone = Instantiate(elevatorObject, new Vector3(10, 12.5f, 10), Quaternion.identity);
+        elevatorClone = Instantiate(elevatorObject, new Vector3(10, 12.5f, 10), Quaternion.identity);
         
         for (int x = 0; x < Dimentions.x * 2; x += 2)
         {
@@ -348,39 +349,46 @@ public class LegoGenerator : MonoBehaviour
     private void OpenChest(Collider collider, Transform transform)
     {
         // Fill in the blueprints
-        int amtToFill = (int) Mathf.Ceil((elevator.blueprints.Count - fillCount) / remainingChests);
-        fillCount += amtToFill;
+        int amtToFill = (int)Mathf.Ceil((elevator.blueprints.Count - fillCount) / remainingChests);
         for (int i = fillCount; i < fillCount + amtToFill; i++)
         {
-            if (elevator.blueprints.Count > 0) 
+            if (elevator.blueprints[i] != null) 
             {
-                elevator.blueprints[0].SetFilled(true);
+                elevator.blueprints[i].SetFilled(true);
             }
         }
+        fillCount += amtToFill;
 
         // Remove current chest
         Object.Destroy(transform.gameObject);
         remainingChests--;
 
         // Place elevator if filled
-        if (fillCount > elevator.blueprints.Count)
+
+        if (fillCount >= elevator.blueprints.Count)
         {
-            float lowestX = 9999999, highestX = 0, lowestZ = 9999999, highestZ = 0;
+            float lowestX = 9999999, highestX = 0, lowestZ = 9999999, highestZ = 0, lowestY = 9999999;
             foreach (Blueprint bp in elevator.blueprints)
             {
                 Vector3 bpPosition = bp.cube.transform.position;
                 
                 lowestX = Mathf.Min(lowestX, bpPosition.x);
-                lowestZ = Mathf.Min(lowestX, bpPosition.z);
+                lowestZ = Mathf.Min(lowestZ, bpPosition.z);
+                lowestY = Mathf.Min(lowestY, bpPosition.y);
                 highestX = Mathf.Max(lowestX, bpPosition.x);
-                highestZ = Mathf.Max(lowestX, bpPosition.z);
+                highestZ = Mathf.Max(lowestZ, bpPosition.z);
+            }
 
-                float elevatorX = (lowestX + highestX) / 2;
-                float elevatorZ = (lowestZ + highestZ) / 2;
+            float elevatorX = (lowestX + highestX) / 2;
+            float elevatorZ = (lowestZ + highestZ) / 2;
 
-                Vector3 elevatorPosition = new Vector3(elevatorX, 3, elevatorZ);
+            Vector3 elevatorPosition = new Vector3(elevatorX, lowestY, elevatorZ);
+            elevatorClone.transform.position = elevatorPosition;
 
-                elevatorObject.transform.position = elevatorPosition;
+            // Remove blueprints
+            foreach (Blueprint bp in elevator.blueprints)
+            {
+                bp.Destroy();
             }
         }
     }
