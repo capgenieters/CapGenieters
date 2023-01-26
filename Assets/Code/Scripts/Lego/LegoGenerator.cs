@@ -20,6 +20,7 @@ public class LegoGenerator : MonoBehaviour
     [SerializeField] int seed = -1;
     [SerializeField] float worldScale = 0.5f;
     [SerializeField] int elevatorSize = 10;
+    [SerializeField] int chestCount = 5;
 
     private List<Brick> cloudPool = new List<Brick>();
     private List<Animal> animals = new List<Animal>();
@@ -32,6 +33,7 @@ public class LegoGenerator : MonoBehaviour
     private Material Grey, BrightGreen, Sand, tWhite, Brown;
     private int previousSeed, cloudSeed;
     private int ePosX, ePosZ;
+    private int remainingChests;
 
     private void Start() 
     {
@@ -252,11 +254,17 @@ public class LegoGenerator : MonoBehaviour
         }
 
         // Spawn random chests
-        int cPosX = Random.Range(2, Dimentions.x - 2) * 2;
-        int cPosZ = Random.Range(2, Dimentions.y - 2) * 2;
-        int cPosY = legoTools.GetTop(cPosX, cPosZ) + 7;
-        Vector3Brick brickPos = new Vector3Brick(cPosX, cPosY, cPosZ, worldScale);
-        GameObject chest = legoTools.Clone(Chest, brickPos.ToVector3(), default, true, false);
+        remainingChests = chestCount;
+        for (int c = 0; c < chestCount; c++)
+        {
+            int cPosX = Random.Range(2, Dimentions.x - 2) * 2;
+            int cPosZ = Random.Range(2, Dimentions.y - 2) * 2;
+            int cPosY = legoTools.GetTop(cPosX, cPosZ) + 7;
+            Vector3Brick brickPos = new Vector3Brick(cPosX, cPosY, cPosZ, worldScale);
+            GameObject chest = legoTools.Clone(Chest, brickPos.ToVector3(), default, true, false);
+            ColliderBridge bridge = chest.AddComponent<ColliderBridge>();
+            bridge.triggerEnterFunction = OpenChest;
+        }
 
         // TODO: Re-renerate platform if it's in the ground
         // Make a platform for the broken elevator
@@ -329,6 +337,22 @@ public class LegoGenerator : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void OpenChest(Collider collider, Transform transform)
+    {
+        // Fill in the blueprints
+        int amtToFill = (int) Mathf.Ceil(elevator.blueprints.Count / remainingChests);
+        for (int i = 0; i < amtToFill; i++)
+            if (elevator.blueprints.Count > 0)
+            {
+                elevator.blueprints[0].SetFilled(true);
+                elevator.blueprints.RemoveAt(0);
+            }
+
+        // Remove current chest
+        Object.Destroy(transform.gameObject);
+        remainingChests--;
     }
 
     private GameObject DistributeTile(Vector3Brick position, GameObject tile, Material mat, bool center = false)

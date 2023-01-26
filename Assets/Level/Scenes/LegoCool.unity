@@ -175,6 +175,7 @@ MonoBehaviour:
   seed: -1
   worldScale: 0.25
   elevatorSize: 10
+  chestCount: 5
 --- !u!4 &292871019
 Transform:
   m_ObjectHideFlags: 0

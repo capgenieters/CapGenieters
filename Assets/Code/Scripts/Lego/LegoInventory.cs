@@ -30,7 +30,7 @@ public class LegoInventory
     private Vector3 displayPosition;
     private LegoTools tools;
 
-    public LegoInventory(LegoTools _tools)
+    public LegoInventory(LegoTools _tools) 
     {
         items = new List<LegoItem>();
         tools = _tools;
@@ -39,7 +39,7 @@ public class LegoInventory
     }
 
     // TODO: Know what it does
-    private void UpdateItems()
+    private void UpdateItems() 
     {
         if (items.Count == 0)
             return;
@@ -49,7 +49,7 @@ public class LegoInventory
             i = items.Count - 1;
 
         Vector3 displayPosition = Vector3.zero;
-        if (displayBrick != null)
+        if (displayBrick != null) 
         {
             displayPosition = displayBrick.cube.transform.position;
             displayBrick.Destroy();
