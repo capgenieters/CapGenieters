@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f65b2c3370651140bc77ed428a898e6, type: 3}
   m_Name: DebugFloor
   m_EditorClassIdentifier: 
-  SceneName: Interactable_Test
-  SpawnPosition: {x: -0.61, y: 1.5, z: -4.11}
-  SpawnRotation: {x: 0, y: 0, z: 0, w: 0}
+  SceneName: Freedom
+  SpawnPosition: {x: -27.22, y: 12.44, z: -20.864}
+  SpawnRotation: {x: 0, y: 0.70710677, z: 0, w: 0.70710677}

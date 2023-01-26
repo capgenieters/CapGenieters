@@ -45,6 +45,7 @@ public class LiftController : MonoBehaviour
         liftState = LiftState.closed;
         DontDestroyOnLoad(this);
     }
+
     private void Update()
     {
         switch (liftState)

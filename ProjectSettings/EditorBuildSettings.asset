@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Level/Scenes/Interactable_Test.unity
     guid: 8801423c364f7be41bf6a9ad6d24296d
+  - enabled: 1
+    path: Assets/Level/Scenes/Freedom.unity
+    guid: c28683acedbe3494f930bc366d07a023
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 0616c3dd8c46a3b42b70294f2662e844,
       type: 2}
