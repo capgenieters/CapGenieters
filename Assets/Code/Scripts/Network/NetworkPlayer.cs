@@ -11,7 +11,7 @@ public class NetworkPlayer : MonoBehaviour
 {
     public Transform head;
     public Transform leftHand;
-    public Transform rightHand; 
+    public Transform rightHand;
     public PhotonView photonView;
 
     private Transform headRig;
@@ -27,9 +27,9 @@ public class NetworkPlayer : MonoBehaviour
         leftHandRig = rig.transform.Find("Camera Offset/Left Hand");
         rightHandRig = rig.transform.Find("Camera Offset/Right Hand");
 
-        if(photonView.IsMine)
+        if (photonView.IsMine)
         {
-            foreach(var item in GetComponentsInChildren<Renderer>())
+            foreach (var item in GetComponentsInChildren<Renderer>())
             {
                 item.enabled = false;
             }
@@ -38,7 +38,7 @@ public class NetworkPlayer : MonoBehaviour
 
     void Update()
     {
-        if(photonView.IsMine)
+        if (photonView.IsMine)
         {
             MapPosition(head, headRig);
             MapPosition(leftHand, leftHandRig);
@@ -47,7 +47,7 @@ public class NetworkPlayer : MonoBehaviour
     }
 
     void MapPosition(Transform target, Transform rigTransform)
-    { 
+    {
         target.SetPositionAndRotation(rigTransform.position, rigTransform.rotation);
     }
 }
