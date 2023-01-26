@@ -802,7 +802,7 @@ PrefabInstance:
     - target: {fileID: 7562425571169972945, guid: 1d9e88a6ebd883c4285419b96953f6de,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.46
+      value: -4.11
       objectReference: {fileID: 0}
     - target: {fileID: 7562425571169972945, guid: 1d9e88a6ebd883c4285419b96953f6de,
         type: 3}
@@ -843,6 +843,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: ButtonTestPlayer
+      objectReference: {fileID: 0}
+    - target: {fileID: 7562425571169972972, guid: 1d9e88a6ebd883c4285419b96953f6de,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1d9e88a6ebd883c4285419b96953f6de, type: 3}
