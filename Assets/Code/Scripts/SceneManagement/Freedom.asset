@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f65b2c3370651140bc77ed428a898e6, type: 3}
   m_Name: Freedom
   m_EditorClassIdentifier: 
-  SceneName: 
-  SpawnPosition: {x: 0, y: 0, z: 0}
-  SpawnRotation: {x: 0, y: 0, z: 0, w: 0}
+  SceneName: Freedom
+  SpawnPosition: {x: -27.34, y: 12.43, z: -21.53}
+  SpawnRotation: {x: 0, y: 0.70710677, z: 0, w: 0.70710677}

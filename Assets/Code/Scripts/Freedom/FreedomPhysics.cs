@@ -22,7 +22,7 @@ public class FreedomPhysics : MonoBehaviour
             Player.transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.FromToRotation(transform.up, hit.normal) * transform.rotation, SurfaceAlignSpeed);
 
             // Gravity 
-            if (hit.distance > 0.6f)
+            if (hit.distance > 1.1f)
             {
                 Player.transform.position -= transform.up * Gravity * Time.deltaTime;
             }

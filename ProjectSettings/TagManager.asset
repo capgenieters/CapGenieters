@@ -3,25 +3,22 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags:
-  - LeftHand
-  - RightHand
-  - Bullet
+  tags: []
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
-  - FingerTips
   - 
-  - Restricted
-  - Player
-  - Grabbable
-  - Grab Ignore Ray
   - 
-  - Freedom Surface
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
   - 
   - 
   - 
