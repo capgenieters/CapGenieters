@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class LegoGenerator : MonoBehaviour
 {
     // VR Tools
-    [SerializeField] Transform leftHand;
-    [SerializeField] Transform rightHand;
+    [SerializeField] Transform player;
     [SerializeField] Text debugItemDisplay;
 
     [SerializeField] Vector2Int Dimentions = new Vector2Int(25, 25);
@@ -19,9 +19,10 @@ public class LegoGenerator : MonoBehaviour
     [SerializeField] Material Transparent;
     [SerializeField] int seed = -1;
     [SerializeField] float worldScale = 0.5f;
-    [SerializeField] int elevatorSize = 20;
+    [SerializeField] int elevatorSize = 10;
     [SerializeField] int chestCount = 5;
     [SerializeField] GameObject elevatorObject;
+    [SerializeField] UnityEvent openLift;
 
     private List<Brick> cloudPool = new List<Brick>();
     private List<Animal> animals = new List<Animal>();
@@ -35,10 +36,20 @@ public class LegoGenerator : MonoBehaviour
     private int previousSeed, cloudSeed;
     private int ePosX, ePosZ;
     private int remainingChests, fillCount = 0;
-    private GameObject elevatorClone;
+    private bool inStartElevator = false;
+    private Transform leftHand, rightHand;
 
     private void Start() 
     {
+        // Get left and right hand from player
+        leftHand = player.Find("Camera Offset/Left Hand");
+        rightHand = player.Find("Camera Offset/Right Hand");
+
+        if (!leftHand || !rightHand)
+        {
+            return;
+        }
+
         legoTools = new LegoTools(Stud, worldScale, Transparent);
         vrTools = new LegoVRTools();
         inventory = new LegoInventory(legoTools);
@@ -177,6 +188,13 @@ public class LegoGenerator : MonoBehaviour
                     elevator.blueprints.RemoveAt(0);
                 }
         }
+
+        // Remove elevator if player jumps out
+        if (player.position.y + 3.0f < elevatorObject.transform.position.y && inStartElevator)
+        {
+            elevatorObject.SetActive(false);
+            inStartElevator = false;
+        }
     }
 
     private void GenerateClouds()
@@ -288,7 +306,10 @@ public class LegoGenerator : MonoBehaviour
         elevator.GenerateElevator(transform);
 
         // Spawn elevator at the plateau
-        elevatorClone = Instantiate(elevatorObject, new Vector3(10, 12.5f, 10), Quaternion.identity);
+        openLift.Invoke();
+        elevatorObject.transform.position = new Vector3(10, 12.5f, 10);
+        player.position = new Vector3(10, 12.5f, 10);
+        inStartElevator = true;
         
         for (int x = 0; x < Dimentions.x * 2; x += 2)
         {
@@ -367,7 +388,7 @@ public class LegoGenerator : MonoBehaviour
 
         if (fillCount >= elevator.blueprints.Count)
         {
-            float lowestX = 9999999, highestX = 0, lowestZ = 9999999, highestZ = 0, lowestY = 9999999;
+            float lowestX = 2e32f, highestX = 0, lowestZ = 2e32f, highestZ = 0, lowestY = 2e32f;
             foreach (Blueprint bp in elevator.blueprints)
             {
                 Vector3 bpPosition = bp.cube.transform.position;
@@ -383,7 +404,9 @@ public class LegoGenerator : MonoBehaviour
             float elevatorZ = (lowestZ + highestZ) / 2;
 
             Vector3 elevatorPosition = new Vector3(elevatorX, lowestY, elevatorZ);
-            elevatorClone.transform.position = elevatorPosition;
+            elevatorObject.transform.position = elevatorPosition;
+            elevatorObject.SetActive(true);
+            openLift.Invoke();
 
             // Remove blueprints
             foreach (Blueprint bp in elevator.blueprints)
