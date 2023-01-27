@@ -6,17 +6,11 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Level/Scenes/Lift_Test.unity
-    guid: f542e60172bb7f34d8ebcbfaa546305c
-  - enabled: 1
-    path: Assets/Level/Scenes/Interactable_Test.unity
-    guid: 8801423c364f7be41bf6a9ad6d24296d
+    path: Assets/Level/Scenes/Final Scenes/Start_End.unity
+    guid: 920116d75b972014283af3bf8d4e7eb3
   - enabled: 1
     path: Assets/Level/Scenes/Freedom.unity
     guid: c28683acedbe3494f930bc366d07a023
-  - enabled: 1
-    path: Assets/Level/Scenes/Final Scenes/Start_End.unity
-    guid: 920116d75b972014283af3bf8d4e7eb3
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 0616c3dd8c46a3b42b70294f2662e844,
       type: 2}
