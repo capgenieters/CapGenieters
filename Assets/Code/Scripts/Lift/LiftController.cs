@@ -68,6 +68,7 @@ public class LiftController : MonoBehaviour
         }
         
     }
+    
     //Scene switching
     private async void SwitchElevation()
     {
@@ -78,11 +79,13 @@ public class LiftController : MonoBehaviour
         spawnTime = maxSpawnTime;
         Destination = string.Empty;
     }
+
     public void OpenLift()
     {
         animator.Play("Open");
         liftState = LiftState.open;
     }
+
     private void SetDestinationData()
     {
         transform.position = spawnPosition;

@@ -6,32 +6,31 @@ public class LegoTools
 {
     public float worldScale;
     public GameObject stud;
-    public StudDictionary studs;
 
+    public List<Vector3Brick> bricks = new List<Vector3Brick>();
     public List<Brick> droppedBricksPool = new List<Brick>();
 
-    public LegoTools(GameObject _stud, float _worldScale)
+    private Material transparent;
+
+    public LegoTools(GameObject _stud, float _worldScale, Material transparent)
     {
         this.stud = _stud;
         this.worldScale = _worldScale;
-        this.studs = new StudDictionary();
+        this.transparent = transparent;
     }
 
     /// <summary>
-    /// This method allows you to get the z value for a x and y.
+    /// This method allows you to get the y value for a x and z.
     /// </summary>
-    public float GetTop(float x, float z, bool scale = true)
+    public int GetTop(int x, int z)
     {
-        float y = -5.0f;
-        while (y < 64.0f)
+        for (int y = 10; y < -5; y--)
         {
-            if (studs.Has(new Vector3(x, y, z)))
+            if (bricks.Contains(new Vector3Brick(x, y, z, worldScale)))
             {
                 Debug.Log(x + ", " + y + ", " + z);
-                return scale ? y / worldScale : y;
+                return y;
             }
-
-            y += 0.2f;
         }
 
         return 0;
@@ -72,59 +71,36 @@ public class LegoTools
     }
 
     /// <summary>
-    /// This method will round a Vector3 position to a Lego Plate position.
+    /// This method will round a Vector3 world position to a BrickSpace position.
     /// <example>
     /// For example:
     /// <code>
     /// Vector3 p = new Vector3(0.36f, 1.63f, 1.94f);
     /// p = RoundToPlate(p.x, p.y, p.z);
     /// </code>
-    /// results in <c>p</c> having the value (0.5f, 1.6f, 2.0f).
+    /// results in <c>p</c> having the value (0, 1.6f, 2).
     /// </example>
     /// </summary>
-    public Vector3 RoundToPlate(float x, float y, float z)
+    public Vector3Int RoundToPlate(float x, float y, float z)
     {
-        return new Vector3(Mathf.Round(x * 2) / 2, Round(y, 0.2f), Mathf.Round(z * 2) / 2);
+        return new Vector3Int((int)Mathf.Round(x), (int)(Round(y, 0.4f) * 3), (int)Mathf.Round(z));
     } 
 
-    public Vector3 RoundToPlate(Vector3 vec)
+    public Vector3Int RoundToPlate(Vector3 vec)
     {
         return RoundToPlate(vec.x, vec.y, vec.z);
-    } 
-
-    public Vector3 FloorToPlate(float x, float y, float z)
-    {
-        return new Vector3(Mathf.Floor(x * 2) / 2, Mathf.Floor(y * 5) / 5, Mathf.Floor(z * 2) / 2);
-    } 
-
-    public Vector3 FloorToPlate(Vector3 vec)
-    {
-        return FloorToPlate(vec.x, vec.y, vec.z);
     } 
 
     public Material CreateMaterial(bool isTransparent = false)
     {
         Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
 
+        if (isTransparent)
+            mat = Object.Instantiate(transparent);
+
         mat.enableInstancing = true;
 
-        if (isTransparent)
-            MakeTransparent(mat);
-
         return mat;
-    }
-
-    public void MakeTransparent(Material material)
-    {
-        material.SetOverrideTag("RenderType", "Transparent");
-        material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        material.SetInt("_ZWrite", 0);
-        material.DisableKeyword("_ALPHATEST_ON");
-        material.EnableKeyword("_ALPHABLEND_ON");
-        material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-        material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
-        material.SetFloat("_Mode", 3.0f);
     }
 
     /// <summary>
@@ -146,5 +122,58 @@ public class LegoTools
         clone.transform.localScale *= scaleToWorld ? worldScale : 1.0f;
         clone.SetActive(isActive);
         return clone;
+    }
+
+    /// <summary>
+    /// This method is just a more advanced wrapper for the original instantiate.
+    /// </summary>
+    public GameObject Clone(GameObject obj, Vector3Brick pos, Quaternion rot = new Quaternion(), bool isActive = true, bool scaleToWorld = true)
+    {
+        Vector3 fPos = pos.ToVector3();
+        GameObject clone = GameObject.Instantiate(obj, fPos, rot);
+        clone.transform.localScale *= scaleToWorld ? worldScale : 1.0f;
+        clone.SetActive(isActive);
+        return clone;
+    }
+
+    public void AddBrickToBricks(Brick brick)
+    {
+        for (int x = 0; x < brick.size.x; x++)
+        {
+            for (int y = 0; y < brick.size.y; y++)
+            {
+                for (int z = 0; z < brick.size.z; z++)
+                {
+                    Vector3Brick newPosition = brick.position + new Vector3Brick(x, y, z, worldScale);
+                    bricks.Add(newPosition);
+                }
+            }
+        }
+    }
+
+    public bool CanBePlaced(Vector3Brick position, Vector3Int size)
+    {
+        bool canBePlaced = true;
+
+        for (int x = 0; x < size.x; x++)
+        {
+            for (int z = 0; z < size.z; z++)
+            {
+                if (!bricks.Contains(position + new Vector3Brick(x, -1, z, worldScale)))
+                {
+                    canBePlaced = false;
+                }
+
+                for (int y = 0; y < size.y; y++)
+                {
+                    if (bricks.Contains(position + new Vector3Brick(x, y, z, worldScale)))
+                    {
+                        canBePlaced = false;
+                    }
+                }
+            }
+        }
+
+        return canBePlaced;
     }
 }

@@ -7,6 +7,7 @@ using UnityEngine;
 
 public class ColliderBridge : MonoBehaviour
 {
+    // TODO: Add collider to prefab
     public delegate void CollisionFunction(Collider collider, Transform transform);
     public CollisionFunction triggerEnterFunction;
 
@@ -14,5 +15,4 @@ public class ColliderBridge : MonoBehaviour
     {
         triggerEnterFunction(collider, transform);
     }
-
 }

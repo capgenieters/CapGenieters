@@ -3,21 +3,22 @@ using UnityEngine;
 
 public class LegoItem
 {
-    public float[] dimentions = new float[3];
+    public Vector3Int size;
     public int amount = 1;
 
     public LegoItem(Brick brick)
     {
-        dimentions[0] = brick.sizeX;
-        dimentions[1] = brick.sizeZ;
-        dimentions[2] = brick.height;
+        this.size = brick.size;
     }
 
-    public LegoItem(float sizeX, float sizeZ, float height)
+    public LegoItem(int sizeX, int sizeY, int sizeZ)
     {
-        dimentions[0] = sizeX;
-        dimentions[1] = sizeZ;
-        dimentions[2] = height;
+        this.size = new Vector3Int(sizeX, sizeY, sizeZ);
+    }
+
+    public LegoItem(Vector3Int size)
+    {
+        this.size = size;
     }
 }
 
@@ -29,7 +30,7 @@ public class LegoInventory
     private Vector3 displayPosition;
     private LegoTools tools;
 
-    public LegoInventory(LegoTools _tools)
+    public LegoInventory(LegoTools _tools) 
     {
         items = new List<LegoItem>();
         tools = _tools;
@@ -37,7 +38,8 @@ public class LegoInventory
         UpdateItems();
     }
 
-    private void UpdateItems()
+    // TODO: Know what it does
+    private void UpdateItems() 
     {
         if (items.Count == 0)
             return;
@@ -47,14 +49,14 @@ public class LegoInventory
             i = items.Count - 1;
 
         Vector3 displayPosition = Vector3.zero;
-        if (displayBrick != null)
+        if (displayBrick != null) 
         {
             displayPosition = displayBrick.cube.transform.position;
             displayBrick.Destroy();
         }
 
         LegoItem item = items[i];
-        displayBrick = new Brick(tools, item.dimentions[0], item.dimentions[1], tools.CreateMaterial(), item.dimentions[2], false, false);
+        displayBrick = new Brick(tools, item.size, tools.CreateMaterial(), false);
         displayBrick.ScaleBrick(0.2f);
         displayBrick.SetAbsolutePosition(displayPosition);
     }
@@ -87,19 +89,24 @@ public class LegoInventory
         UpdateItems();
     }
 
-    public void AddItem(Brick brick)
+    public void AddItem(int x, int y, int z)
     {
-        AddItem(brick.sizeX, brick.sizeZ, brick.height);
+        AddItem(new Vector3Int(x, y, z));
     }
 
-    public void AddItem(float sizeX, float sizeZ, float height)
+    public void AddItem(Brick brick)
+    {
+        AddItem(brick.size);
+    }
+
+    public void AddItem(Vector3Int size)
     {
         // Find existing item in inventory
         for (int i = 0; i < items.Count; i++)
         {
             LegoItem iItem = items[i];
 
-            if (sizeX == iItem.dimentions[0] && sizeZ == iItem.dimentions[1] && height == iItem.dimentions[2])
+            if (size == iItem.size)
             {
                 items[i].amount++;
                 return;
@@ -107,11 +114,10 @@ public class LegoInventory
         }
 
         // Item doesn't exist yet, add it
-        LegoItem item = new LegoItem(sizeX, sizeZ, height);
-        items.Add(item);
+        items.Add(new LegoItem(size));
     }
 
-    public void PlaceItem(Vector3 position)
+    public void PlaceItem(Vector3Brick position)
     {
         // Prevent placing a brick when the list is empty
         if (items.Count < 1)
@@ -123,10 +129,10 @@ public class LegoInventory
 
         // Get the target item and place the brick
         LegoItem item = items[selectedIndex];
-        Brick newBrick = new Brick(tools, item.dimentions[0], item.dimentions[1], new Material(Shader.Find("Standard")), item.dimentions[2]);
+        Brick newBrick = new Brick(tools, item.size, tools.CreateMaterial());
 
-        newBrick.BuildBrick(tools.studs.Get(position));
-        tools.studs.Remove(position);
+        newBrick.SetPosition(position.x, position.y + 1, position.z);
+        tools.bricks.Remove(position);
 
         // Remove one of the bricks and if 0, remove the brick from the list
         items[selectedIndex].amount--;

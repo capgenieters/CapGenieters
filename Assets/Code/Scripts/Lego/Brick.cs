@@ -1,50 +1,39 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Brick
 {
-   public float sizeX;
-    public float sizeZ;
-    public float height;
+    public Vector3Int size { get; private set; }
     public GameObject cube { get; private set; }
+    public Vector3Brick previousPosition { get; private set; }
+    public Vector3Brick position { get; private set; }
 
     private LegoTools tools;
-    private StudDictionary myStuds;
     private bool canBuild, dropped;
 
-    public Brick(LegoTools _tools, float _sizeX, float _sizeZ, Material material, float _height = 0.6f, bool _canBuild = true, bool _dropped = false)
+    public Brick(LegoTools tools, Vector3Int size, Material material, bool canBuild = true, bool dropped = false)
     {
-        sizeX = _sizeX;
-        sizeZ = _sizeZ;
-        height = _height;
-        canBuild = _canBuild;
-        dropped = _dropped;
-        tools = _tools;
-        myStuds = new StudDictionary();
+        this.size = size;
+        this.canBuild = canBuild;
+        this.dropped = dropped;
+        this.tools = tools;
         cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 
         if (dropped)
             cube.AddComponent<Rigidbody>();
 
-        cube.transform.localScale = new Vector3(sizeX * 0.5f, height, sizeZ * 0.5f) * tools.worldScale;
+        // Scale the bricks down to worldScale
+        cube.transform.localScale = new Vector3(size.x, size.y * 0.4f, size.z) * tools.worldScale;
 
-        for (float x = 0; x < sizeX; x++)
+        // Add studs to the brick
+        for (int x = 0; x < size.x; x++)
         {
-            for (float z = 0; z < sizeZ ; z++)
+            for (int z = 0; z < size.z ; z++)
             {
-                float fX = x / 2 - (sizeX / 4) + 0.25f;
-                float fZ = z / 2 - (sizeZ / 4) + 0.25f;
-
-                Vector3 studPos = new Vector3(fX, 0.5f * height, fZ);
+                float xm = size.x * 0.5f - 0.5f;
+                float zm = size.z * 0.5f - 0.5f;
+                Vector3 studPos = new Vector3(x - xm, size.y * 0.2f, z - zm);
                 GameObject newStud = tools.Clone(tools.stud, studPos);
                 newStud.transform.parent = cube.transform;
-
-                if (canBuild && !dropped)
-                {
-                    tools.studs.Add(studPos, newStud);
-                    myStuds.Add(studPos, newStud);
-                }
             }
         }
 
@@ -67,25 +56,28 @@ public class Brick
         child.SetParent(cube.transform);
     }
 
-    Vector3 oldPosition, pStud;
-    public void SetPosition(Vector3 position)
+    /// <summary>
+    /// Set the brick position in BrickSpace
+    /// </summary>
+    public void SetPosition(Vector3Brick position)
     {
-        cube.transform.position = position * tools.worldScale;
+        cube.transform.position = position.ToVector3(new Vector2Int(size.x, size.z));
+        this.position = position;
 
-        if (canBuild && !dropped)
-            foreach(KeyValuePair<Vector3, GameObject> v in myStuds.map)
-            {
-                oldPosition = v.Key;
-                pStud = v.Value.transform.position / tools.worldScale;
+        if (canBuild)
+        {
+            tools.AddBrickToBricks(this);
+        }
 
-                tools.studs.Add(pStud, v.Value);
-                tools.studs.Remove(oldPosition);
-            }
+        this.previousPosition = position;
     }
 
-    public void SetPosition(float x, float y, float z)
+    /// <summary>
+    /// Set the brick position in BrickSpace
+    /// </summary>
+    public void SetPosition(int x, int y, int z)
     {
-        SetPosition(new Vector3(x, y, z));
+        SetPosition(new Vector3Brick(x, y, z, tools.worldScale));
     }
 
     /// <summary>
@@ -114,16 +106,6 @@ public class Brick
     {
         Vector3 scale = cube.transform.localScale;
         cube.transform.localScale = scale * amount;
-    }
-
-    public void BuildBrick(GameObject stud)
-    {
-        if (!canBuild || dropped)
-            return;
-            
-        Vector3 studPos = stud.transform.position / tools.worldScale;
-        studPos.y += this.cube.transform.localScale.y / tools.worldScale / 2;
-        SetPosition(studPos);
     }
 
     public void SetActive(bool active)
