@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: Freedom
   m_EditorClassIdentifier: 
   SceneName: Freedom
+  PlayerPrefab: {fileID: 4441983794400132635, guid: 30c3a55023860fb43b9be41486de42cd,
+    type: 3}
   SpawnPosition: {x: -27.34, y: 12.43, z: -21.53}
   SpawnRotation: {x: 0, y: 0.70710677, z: 0, w: 0.70710677}

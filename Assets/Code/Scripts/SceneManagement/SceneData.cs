@@ -6,6 +6,7 @@ using UnityEngine;
 public class SceneData : ScriptableObject
 {
     public string SceneName;
+    public GameObject PlayerPrefab;
     public Vector3 SpawnPosition;
     public Quaternion SpawnRotation;
 }

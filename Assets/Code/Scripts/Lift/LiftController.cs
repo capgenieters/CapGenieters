@@ -35,6 +35,8 @@ public class LiftController : MonoBehaviour
     private Quaternion spawnRotation;
     [SerializeField] private float spawnTime;
     private float maxSpawnTime = 5f;
+    private GameObject PlayerPrefab;
+    private Vector3 Player1SpawnPosition;
     //Older code
     [SerializeField] private VideoPlayer videoPlayer;
     //
@@ -78,6 +80,11 @@ public class LiftController : MonoBehaviour
         liftState = LiftState.traveling;
         spawnTime = maxSpawnTime;
         Destination = string.Empty;
+
+        GameObject newPlayer = GameObject.Instantiate(PlayerPrefab, Player1SpawnPosition, Quaternion.identity);
+        newPlayer.transform.parent = this.transform;
+        newPlayer.transform.position = Player1SpawnPosition;
+        Debug.Log(Player1SpawnPosition);
     }
 
     public void OpenLift()
@@ -136,6 +143,7 @@ public class LiftController : MonoBehaviour
     public void SetNextElevation(SceneData sceneData)
     {
         Destination = sceneData.SceneName;
+        PlayerPrefab = sceneData.PlayerPrefab;
         spawnPosition = sceneData.SpawnPosition;
         spawnRotation = sceneData.SpawnRotation;
     }
@@ -153,7 +161,16 @@ public class LiftController : MonoBehaviour
             for (int i = 0; i < targets.Length; i++)
             {
                 TrackPlayer(targets[i].transform.gameObject);
+                FollowPlayer(i);
             }
+        }
+    }
+
+    private void FollowPlayer(int index)
+    {
+        if (index == 0)
+        {
+            Player1SpawnPosition = transform.position - trackedPlayers.ToArray()[index].transform.position;
         }
     }
     private void TrackPlayer(GameObject targetPlayer) 
