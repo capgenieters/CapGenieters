@@ -169,6 +169,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aeda7bfbf984f2a4da5ab4b8967b115d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_Weight: 1
+  m_Data:
+    m_Root: {fileID: 0}
+    m_Mid: {fileID: 0}
+    m_Tip: {fileID: 0}
+    m_Target: {fileID: 0}
+    m_Hint: {fileID: 0}
+    m_TargetPositionWeight: 0
+    m_TargetRotationWeight: 0
+    m_HintWeight: 0
+    m_MaintainTargetPositionOffset: 0
+    m_MaintainTargetRotationOffset: 0
 --- !u!1001 &21641152
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3039,6 +3051,21 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9056422050437032812, guid: 2cb55cf61f023654e9d4ff5c4d08528e,
         type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9056422050437032812, guid: 2cb55cf61f023654e9d4ff5c4d08528e,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9056422050437032812, guid: 2cb55cf61f023654e9d4ff5c4d08528e,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9056422050437032812, guid: 2cb55cf61f023654e9d4ff5c4d08528e,
+        type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -3218,6 +3245,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aeda7bfbf984f2a4da5ab4b8967b115d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_Weight: 1
+  m_Data:
+    m_Root: {fileID: 0}
+    m_Mid: {fileID: 0}
+    m_Tip: {fileID: 0}
+    m_Target: {fileID: 0}
+    m_Hint: {fileID: 0}
+    m_TargetPositionWeight: 0
+    m_TargetRotationWeight: 0
+    m_HintWeight: 0
+    m_MaintainTargetPositionOffset: 0
+    m_MaintainTargetRotationOffset: 0
 --- !u!1 &317590956
 GameObject:
   m_ObjectHideFlags: 0
@@ -3819,6 +3858,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70b342d8ce5c2fd48b8fa3147d48d1d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_Weight: 1
+  m_Effectors: []
 --- !u!4 &400526193
 Transform:
   m_ObjectHideFlags: 0
@@ -3975,6 +4016,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8935e03361a14ec4b8edc872f76bc822, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_Weight: 1
+  m_Data:
+    m_ConstrainedObject: {fileID: 0}
+    m_SourceObjects:
+      m_Length: 0
+      m_Item0:
+        transform: {fileID: 0}
+        weight: 0
+      m_Item1:
+        transform: {fileID: 0}
+        weight: 0
+      m_Item2:
+        transform: {fileID: 0}
+        weight: 0
+      m_Item3:
+        transform: {fileID: 0}
+        weight: 0
+      m_Item4:
+        transform: {fileID: 0}
+        weight: 0
+      m_Item5:
+        transform: {fileID: 0}
+        weight: 0
+      m_Item6:
+        transform: {fileID: 0}
+        weight: 0
+      m_Item7:
+        transform: {fileID: 0}
+        weight: 0
+    m_ConstrainedPositionAxes:
+      x: 0
+      y: 0
+      z: 0
+    m_ConstrainedRotationAxes:
+      x: 0
+      y: 0
+      z: 0
+    m_MaintainPositionOffset: 0
+    m_MaintainRotationOffset: 0
 --- !u!1001 &430357914
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17933,17 +18013,28 @@ PrefabInstance:
       propertyPath: m_Name
       value: Lift
       objectReference: {fileID: 0}
+    - target: {fileID: 1112849133528529696, guid: 8274708e2c3972e4a8a1a830c5c6b155,
+        type: 3}
+      propertyPath: m_text
+      value: Freedom
+      objectReference: {fileID: 0}
     - target: {fileID: 1112849134393316090, guid: 8274708e2c3972e4a8a1a830c5c6b155,
+        type: 3}
+      propertyPath: OnActivate.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgument
+      value: 
+      objectReference: {fileID: 11400000, guid: 86e8c87413bf55b4e9f2c38add16391e,
+        type: 2}
+    - target: {fileID: 1112849135336898282, guid: 8274708e2c3972e4a8a1a830c5c6b155,
+        type: 3}
+      propertyPath: m_text
+      value: Fun
+      objectReference: {fileID: 0}
+    - target: {fileID: 6018589858007036811, guid: 8274708e2c3972e4a8a1a830c5c6b155,
         type: 3}
       propertyPath: OnActivate.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgument
       value: 
       objectReference: {fileID: 11400000, guid: 09ba91c9877439b45a12d3b9252d0d5f,
         type: 2}
-    - target: {fileID: 1112849135336898282, guid: 8274708e2c3972e4a8a1a830c5c6b155,
-        type: 3}
-      propertyPath: m_text
-      value: Freedom
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8274708e2c3972e4a8a1a830c5c6b155, type: 3}
 --- !u!114 &1687833924 stripped
@@ -32540,6 +32631,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2d8418b0b9634b1892b0268dd9c2743, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boneShape: 1
+  drawBones: 1
+  drawTripods: 0
+  boneSize: 1
+  tripodSize: 1
+  boneColor: {r: 0, g: 0, b: 1, a: 0.5}
+  m_Transforms: []
 --- !u!114 &5717370821345388738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32552,6 +32650,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fff0960ef4ea6e04eac66b4a7fd2189d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_RigLayers: []
+  m_Effectors: []
 --- !u!114 &5717370821345388739
 MonoBehaviour:
   m_ObjectHideFlags: 0

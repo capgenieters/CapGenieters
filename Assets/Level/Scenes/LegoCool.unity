@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028331, g: 0.2257133, b: 0.3069217, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -413,10 +413,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 9056422050437032785, guid: 2cb55cf61f023654e9d4ff5c4d08528e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9056422050437032812, guid: 2cb55cf61f023654e9d4ff5c4d08528e,
         type: 3}
       propertyPath: m_RootOrder
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9056422050437032812, guid: 2cb55cf61f023654e9d4ff5c4d08528e,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9056422050437032812, guid: 2cb55cf61f023654e9d4ff5c4d08528e,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9056422050437032812, guid: 2cb55cf61f023654e9d4ff5c4d08528e,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 9056422050437032812, guid: 2cb55cf61f023654e9d4ff5c4d08528e,
         type: 3}
@@ -482,6 +502,11 @@ PrefabInstance:
       propertyPath: liftState
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1112849133399608305, guid: 8274708e2c3972e4a8a1a830c5c6b155,
+        type: 3}
+      propertyPath: playerLayer.m_Bits
+      value: 520
+      objectReference: {fileID: 0}
     - target: {fileID: 1112849133399608306, guid: 8274708e2c3972e4a8a1a830c5c6b155,
         type: 3}
       propertyPath: m_RootOrder
@@ -541,6 +566,17 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Lift
+      objectReference: {fileID: 0}
+    - target: {fileID: 1112849134393316090, guid: 8274708e2c3972e4a8a1a830c5c6b155,
+        type: 3}
+      propertyPath: OnActivate.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgument
+      value: 
+      objectReference: {fileID: 11400000, guid: 09ba91c9877439b45a12d3b9252d0d5f,
+        type: 2}
+    - target: {fileID: 1112849135336898282, guid: 8274708e2c3972e4a8a1a830c5c6b155,
+        type: 3}
+      propertyPath: m_text
+      value: Freedom
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8274708e2c3972e4a8a1a830c5c6b155, type: 3}
